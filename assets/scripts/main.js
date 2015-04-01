@@ -19,4 +19,5 @@ var app = {
 $(function (){
     // init app
     app.start();
+    console.log('aaaaaaaaaaaaaaaa');
 });

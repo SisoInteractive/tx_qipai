@@ -14,6 +14,7 @@
     "grunt-contrib-copy": "*",
     "grunt-contrib-concat": "*",
     "grunt-contrib-less": "*",
+    "grunt-autoprefixer": "*",
     "grunt-contrib-cssmin": "*",
     "grunt-contrib-uglify": "*",
     "grunt-contrib-htmlmin": "*",
