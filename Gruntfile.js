@@ -3,14 +3,11 @@
 
 // task order
 //- Clean dist directory
-//- Copy files to dist directory expect *.css files
+//- Copy file to dist directory
 //- Compile less, sass, coffee script into dist directory
-//- Auto prefixer CSS in dist directory
-//- Concat and compressor js to be single file in dist directory
+//- Concat css, js both to be single file in dist directory
+//- Compressor css and js file in dist directory
 //- Injector css and js file to html
-
-//    grunt.registerTask('deploy', ['cleanDir', 'copyFileToDist', 'compileLess', 'autoPrefixCss', 'concatCompressorCss', 'concatJs', 'injectFileToHtml']);
-
 
 module.exports = function (grunt){
     // auto-load npm task components
@@ -29,7 +26,7 @@ module.exports = function (grunt){
             build: {
                 files: [
                     {
-                        src: ['assets/stylesheets/*.css', '*.html'],
+                        src: [ 'assets/scripts/*', 'assets/images/*', '*.html'],
                         dest: 'dist/',
                         expand: true
                     }
@@ -51,39 +48,25 @@ module.exports = function (grunt){
         // concat and compressor css
         cssmin: {
             build: {
-                files: {
-                    'dist/assets/stylesheets/main.min.css': ['dist/assets/stylesheets/*.css']
-                }
+                files: [{
+                    'dist/assets/stylesheets/main.min.css': ['assets/stylesheets/*.css', 'dist/assets/stylesheets/*.css']
+                }]
             }
         },
 
-        autoprefixer: {
-            options: {
-                // Task-specific options go here.
-            },
-            build: {
-                // Target-specific file lists and/or options go here.
-                expand: true,
-                flatten: true,
-                src: 'dist/assets/stylesheets/*.css',
-                dest: 'dist/assets/stylesheets/'
-            }
-        },
-
-        // concat files
+        // concat js
         concat: {
             build: {
-                //src:'assets/scripts/*.js',
-                //dest:'dist/assets/scripts/index.js'
+                src:'assets/scripts/placeholder.js',
+                dest:'dist/assets/scripts/placeholder.js'
             }
         },
 
         // compressor js
-        // uglify可以将src定义的多个js files合成一个js file, 但这种合并顺序我们无法控制, 所以关于合并js文件的步骤需要手动去做
         uglify: {
             build: {
-                //src:['assets/scripts/*.js', '!assets/scripts/less.min.js', '!assets/scripts/jquery-2.1.3.min.js'],
-                //dest:'dist/assets/scripts/main.min.js'
+                src:['assets/scripts/*.js', '!assets/scripts/less.min.js'],
+                dest:'dist/assets/scripts/main.min.js'
             }
         },
 
@@ -100,7 +83,7 @@ module.exports = function (grunt){
                         return '<link rel="stylesheet" href="' + filePath + '" />';
                     },
                     starttag: '<!-- injector:css -->',
-                    endtag: '<!-- endinjector -->',
+                    endtag: '<!-- endinjector -->'
                 },
                 files: {
                     'dist/index.html': ['dist/assets/stylesheets/*.css']
@@ -122,6 +105,39 @@ module.exports = function (grunt){
             }
         },
 
+        'string-replace': {
+            deploy: {
+                files: [{
+                    expand: true,
+                    cwd: 'dist/',
+                    src: '*.html',
+                    dest: 'dist/'
+                }],
+                options: {
+                    replacements: [{
+                        //  remove livereload
+                        pattern: /<script src="\/\/localhost:35729\/livereload.js"><\/script>/ig,
+                        replacement: ''
+                    },
+                        {
+                            //  remove less compiler
+                            pattern: /<script src="assets\/scripts\/less.min.js"><\/script>/ig,
+                            replacement: ''
+                        },
+                        {
+                            //  replace link tag's rel="stylesheet/less" to rel="stylesheet"
+                            pattern: /stylesheet\/less/ig,
+                            replacement: 'stylesheet'
+                        },
+                        {
+                            //  replace .less extension to .css extension
+                             pattern: /.less"\/>/ig,
+                            replacement: '.css"/>'
+                        }]
+                }
+            }
+        },
+
         watch: {
             css: {
                 files: 'assets/stylesheets/**',
@@ -130,7 +146,7 @@ module.exports = function (grunt){
                 }
             },
             js: {
-                files: 'assets/script/**',
+                files: 'assets/scripts/**',
                 options: {
                     livereload: true
                 }
@@ -148,13 +164,13 @@ module.exports = function (grunt){
     grunt.registerTask('cleanDir', ['clean:build']); //ok
     grunt.registerTask('copyFileToDist', ['copy:build']); //ok
     grunt.registerTask('compileLess', ['less:build']); //ok
-    grunt.registerTask('autoPrefixCss', ['autoprefixer:build']);
     grunt.registerTask('concatCompressorCss', ['cssmin:build']); //ok
-    grunt.registerTask('concatJs', ['uglify:build']); //ok
+    grunt.registerTask('makeJs', ['concat:build', 'uglify:build']); //ok
     grunt.registerTask('injectFileToHtml', ['injector']); //ok
+    grunt.registerTask('removeUnuseFile', ['string-replace:deploy']); //ok
     // main task
-    //grunt.registerTask('deploy', ['cleanDir', 'copyFileToDist', 'compileLess', 'autoPrefixCss', 'concatCompressorCss', 'concatJs', 'injectFileToHtml']);
-    grunt.registerTask('deploy', ['cleanDir', 'copyFileToDist', 'compileLess', 'autoPrefixCss', 'concatCompressorCss', 'concatJs']);
+    //grunt.registerTask('deploy', ['cleanDir', 'copyFileToDist', 'compileLess', 'concatCompressorCss', 'makeJs', 'injectFileToHtml']);
+    grunt.registerTask('deploy', ['cleanDir', 'copyFileToDist', 'compileLess', 'removeUnuseFile']);
     grunt.registerTask('live', ['watch']);
 
 
