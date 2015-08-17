@@ -7,6 +7,7 @@ var app = {
 
     paper: {
         canvas: {
+            dom: null,
             width: 0,
             height: 0
         },
@@ -19,17 +20,7 @@ var app = {
         var Canvas = document.getElementById('scene');
         var ctx = Canvas.getContext('2d');
 
-        //  init canvas size
-        Canvas.width = document.body.clientWidth;
-        Canvas.height = document.body.clientHeight;
-        Canvas.style.width = document.body.clientWidth + 'px';
-        Canvas.style.height = document.body.clientHeight + 'px';
-        Canvas.style.background = '#e0eae2';
-
-        //  init paper info
-        this.paper.ctx = ctx;
-        this.paper.canvas.width = Canvas.width;
-        this.paper.canvas.height = Canvas.height;
+        windowResizeHandler();
 
         //  set images generator
         var imgPath = "assets/images/";
@@ -82,7 +73,17 @@ var app = {
         }
 
         function windowResizeHandler () {
+            //  init canvas size
+            Canvas.width = document.body.clientWidth;
+            Canvas.height = document.body.clientHeight;
+            Canvas.style.width = document.body.clientWidth + 'px';
+            Canvas.style.height = document.body.clientHeight + 'px';
 
+            //  init paper info
+            that.paper.ctx = ctx;
+            that.paper.canvas.dom = Canvas;
+            that.paper.canvas.width = Canvas.width;
+            that.paper.canvas.height = Canvas.height;
         }
     },
 
@@ -102,73 +103,118 @@ var app = {
         //  play frames with scene sprites indexes
         that.curIndex = 0;
         that.direct = 'forward';
-        that.playFrames(that.sceneSpriteGroup[that.curIndex]);
+        that.playFrames(that.sceneSpriteGroup[that.curIndex][0], that.sceneSpriteGroup[that.curIndex][1]);
+
 
         //  bind controller
-        document.getElementById('prev').onclick = function () {
-            //  stop prev frames drawer
-            clearTimeout(that.playTimer);
+        var canvasDom = new Hammer(that.paper.canvas.dom);
+        //canvasDom.on('swipeleft', prevSceneHandler);
+        canvasDom.on('swipeleft', prevSceneHandler);
 
-            // play the current frames forward,
-            // then set current index to the prev scene's index in the playFrames method
-            that.direct = "backward";
-            that.playFrames(that.sceneSpriteGroup[that.curIndex]);
-        };
+        canvasDom.on('swiperight', nextSceneHandler);
 
-        document.getElementById('next').onclick = function () {
-            //  stop prev frames drawer
-            clearTimeout(that.playTimer);
-            that.direct = "forward";
+        document.getElementById('prev').onclick = prevSceneHandler;
 
-            //  is current scene index is the last scene
-            that.curIndex + 1  == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex;
-            that.playFrames(that.sceneSpriteGroup[++that.curIndex]);
-        };
+        document.getElementById('next').onclick = nextSceneHandler;
+
+        //  bind touch event
+        var touchStartPoint = 0;
+
+        //that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint);
+        //
+        //that.paper.canvas.dom.addEventListener('touchmove', function (e) {
+        //    var curPoint = e.touches[0].pageX;
+        //    console.log(curPoint, touchStartPoint);
+        //}, false);
 
         //  play BGM immediately
         var initSound = function () {
             //  delay play
-            $('#audio')[0].play();
+            document.getElementById('audio').play();
 
             document.removeEventListener('touchstart', initSound, false);
         };
         document.addEventListener('touchstart', initSound, false);
+
+        function setTouchStartPoint(e) {
+            touchStartPoint = e.touches[0].pageX;
+        }
+
+        function prevSceneHandler () {
+            //  stop prev frames drawer
+            clearTimeout(that.playTimer);
+
+            that.direct = "backward";
+
+            //  check is the currentFrame is the last frame of the current scene.
+            for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
+                var sceneSpritesFirstFrame = that.sceneSpriteGroup[i][0];
+
+                if (that.curFrameIndex == sceneSpritesFirstFrame) {
+                    that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
+
+                    var startFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
+                    var endFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
+
+                    that.playFrames(startFrameIndex, endFrameIndex);
+                    return;
+                }
+            }
+
+            that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][0]);
+        }
+
+        function nextSceneHandler () {
+            //  stop prev frames drawer
+            clearTimeout(that.playTimer);
+
+            that.direct = "forward";
+
+            //  check is the currentFrame is the last frame of the current scene.
+            for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
+                var sceneSpritesLastFrame = that.sceneSpriteGroup[i][1];
+
+                if (that.curFrameIndex == sceneSpritesLastFrame) {
+                    that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
+
+                    var startFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
+                    var endFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
+
+                    that.playFrames(startFrameIndex, endFrameIndex);
+                    return;
+                }
+            }
+
+            that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][1]);
+        }
     },
 
     curIndex: 0,
 
-    direct: 1,
+    curFrameIndex : 1,
 
-    playFrames: function (sceneSpritesIndexes) {
+    playFrames: function (curFrameIndex, endFrameIndex) {
         var that = this;
-        var ctx = this.paper.ctx;
+        var ctx = that.paper.ctx;
 
         //  draw sprite
-        //  if direct == "forward", the frame play direction is forward,
-        //  if direct == "backward", the frame play direction is backward
-        var startFrameIndex = that.direct == "forward" ? sceneSpritesIndexes[0] : sceneSpritesIndexes[1];
-        var endFrameIndex = that.direct == "forward" ? sceneSpritesIndexes[1] : sceneSpritesIndexes[0];
-        drawSprite(startFrameIndex, endFrameIndex);
+        drawSprite(curFrameIndex, endFrameIndex);
 
         //  recursive to draw sprites
         function drawSprite(curFrameIndex, endFrameIndex) {
+            that.curFrameIndex = curFrameIndex;
             ctx.clearRect(0, 0, that.paper.canvas.width, that.paper.canvas.height);
 
             //  if current frame is the last frame
             if (curFrameIndex == endFrameIndex) {
                 draw(curFrameIndex);
 
-                //  if this draw direction is backward, when the draw process end,
-                //  decrease the current index
-                if (that.direct == "backward") {
-                    that.curIndex-1 < 0 ? that.curIndex = that.sceneSpriteGroup.length-1 : that.curIndex--;
-                }
             } else {
                 draw(curFrameIndex);
 
                 // draw next frame
                 that.playTimer = setTimeout(function () {
-                    that.direct == "forward" ? drawSprite(curFrameIndex+1, endFrameIndex) : drawSprite(curFrameIndex-1, endFrameIndex);
+                    that.direct == "forward" ? drawSprite(parseInt(curFrameIndex)+1, endFrameIndex) : drawSprite(parseInt(curFrameIndex)-1, endFrameIndex);
                 }, 1000/20);
             }
         }
@@ -178,7 +224,7 @@ var app = {
             var img = that.sprites[frameIndex];
 
             if (img) {
-                ctx.drawImage(img, 0, 0, that.paper.canvas.width, that.paper.canvas.height);
+                ctx.drawImage(img, 0, that.paper.canvas.height*0.248, that.paper.canvas.width, that.paper.canvas.height*0.642);
             }
         }
     },
@@ -194,7 +240,7 @@ var app = {
     }
 };
 
-$(function (){
+window.onload = function () {
     // init app
     app.start();
-});
+};

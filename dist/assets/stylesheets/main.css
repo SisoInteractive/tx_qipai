@@ -19,6 +19,7 @@ body {
   height: 100%;
   overflow: hidden;
   margin: 0  auto;
+  background: #e0eae2;
 }
 a {
   text-decoration: none;
@@ -35,21 +36,10 @@ span {
 input {
   outline: none;
 }
-/* swiper */
-.swiper-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-.swiper-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-.swiper-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
+/* scene */
+#scene {
+  background: url("../images%20backup/final-3_xulie_00.jpg") no-repeat;
+  background-size: 100% 100%;
 }
 /* controller */
 .controller {
