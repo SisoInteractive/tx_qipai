@@ -109,9 +109,9 @@ var app = {
         //  bind controller
         var canvasDom = new Hammer(that.paper.canvas.dom);
         //canvasDom.on('swipeleft', prevSceneHandler);
-        canvasDom.on('swipeleft', prevSceneHandler);
+        canvasDom.on('swipeleft', nextSceneHandler);
 
-        canvasDom.on('swiperight', nextSceneHandler);
+        canvasDom.on('swiperight', prevSceneHandler);
 
         document.getElementById('prev').onclick = prevSceneHandler;
 
