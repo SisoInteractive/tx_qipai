@@ -142,6 +142,7 @@ var app = {
             //  check is the currentFrame is the first frame of the current scene.
             for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
                 var sceneSpritesFirstFrame = that.sceneSpriteGroup[i][0];
+                console.log(that.curIndex);
 
                 if (that.curFrameIndex == sceneSpritesFirstFrame) {
                     that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
@@ -195,18 +196,21 @@ var app = {
                 var startFrame = that.sceneSpriteGroup[that.curIndex][0];
                 var endFrame = that.sceneSpriteGroup[that.curIndex][1];
 
-                //  calculate next frame index
-                if (curPoint > touchStartPoint) {
-                    that.curFrameIndex -= distance;
-
-                    if (that.curFrameIndex < startFrame) {
-                        that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
-                    }
-                } else {
+                //  calculate the next frame's index to draw
+                //  if the drag direction is "forward"
+                if (curPoint < touchStartPoint) {
                     that.curFrameIndex += distance;
 
                     if (that.curFrameIndex > endFrame) {
                         that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
+                        that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
+                    }
+                } else {
+                    that.curFrameIndex -= distance;
+
+                    if (that.curFrameIndex < startFrame) {
+                        that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
+                        that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
                     }
                 }
 
