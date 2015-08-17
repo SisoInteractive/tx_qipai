@@ -195,7 +195,7 @@ var app = {
             var endFrame = that.sceneSpriteGroup[that.curIndex][1];
 
             //  calculate next frame index
-            if (curPoint < touchStartPoint) {
+            if (curPoint > touchStartPoint) {
                 that.curFrameIndex -= distance;
                 that.curFrameIndex < startFrame ? that.curFrameIndex = startFrame : that.curFrameIndex;
             } else {
