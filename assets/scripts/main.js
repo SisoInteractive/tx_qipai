@@ -120,12 +120,9 @@ var app = {
         //  bind touch event
         var touchStartPoint = 0;
 
-        //that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint);
-        //
-        //that.paper.canvas.dom.addEventListener('touchmove', function (e) {
-        //    var curPoint = e.touches[0].pageX;
-        //    console.log(curPoint, touchStartPoint);
-        //}, false);
+        that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint);
+
+        that.paper.canvas.dom.addEventListener('touchmove', setCurrentFrame);
 
         //  play BGM immediately
         var initSound = function () {
@@ -136,17 +133,13 @@ var app = {
         };
         document.addEventListener('touchstart', initSound, false);
 
-        function setTouchStartPoint(e) {
-            touchStartPoint = e.touches[0].pageX;
-        }
-
         function prevSceneHandler () {
             //  stop prev frames drawer
             clearTimeout(that.playTimer);
 
             that.direct = "backward";
 
-            //  check is the currentFrame is the last frame of the current scene.
+            //  check is the currentFrame is the first frame of the current scene.
             for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
                 var sceneSpritesFirstFrame = that.sceneSpriteGroup[i][0];
 
@@ -157,11 +150,12 @@ var app = {
                     var endFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
 
                     that.playFrames(startFrameIndex, endFrameIndex);
-                    return;
+                    return null;
                 }
             }
 
             that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][0]);
+            return null;
         }
 
         function nextSceneHandler () {
@@ -181,11 +175,36 @@ var app = {
                     var endFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
 
                     that.playFrames(startFrameIndex, endFrameIndex);
-                    return;
+                    return null;
                 }
             }
 
             that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][1]);
+            return null;
+        }
+
+        function setTouchStartPoint(e) {
+            touchStartPoint = e.touches[0].pageX;
+        }
+
+        function setCurrentFrame (e) {
+            var curPoint = e.touches[0].pageX;
+            var distance = 1;
+
+            var startFrame = that.sceneSpriteGroup[that.curIndex][0];
+            var endFrame = that.sceneSpriteGroup[that.curIndex][1];
+
+            //  calculate next frame index
+            if (curPoint < touchStartPoint) {
+                that.curFrameIndex -= distance;
+                that.curFrameIndex < startFrame ? that.curFrameIndex = startFrame : that.curFrameIndex;
+            } else {
+                that.curFrameIndex += distance;
+                that.curFrameIndex > endFrame ? that.curFrameIndex = endFrame : that.curFrameIndex;
+            }
+
+            //  draw next frame
+            that.draw(that.curFrameIndex);
         }
     },
 
@@ -194,6 +213,12 @@ var app = {
     curFrameIndex : 1,
 
     playFrames: function (curFrameIndex, endFrameIndex) {
+        /**
+         * Play current scene's sprite frames
+         * @param {Number} curFrameIndex
+         * @param {Number} endFrameIndex
+         * @return {Null} null
+         */
         var that = this;
         var ctx = that.paper.ctx;
 
@@ -203,29 +228,40 @@ var app = {
         //  recursive to draw sprites
         function drawSprite(curFrameIndex, endFrameIndex) {
             that.curFrameIndex = curFrameIndex;
-            ctx.clearRect(0, 0, that.paper.canvas.width, that.paper.canvas.height);
 
-            //  if current frame is the last frame
+            //  check whether currentFrame is the last frame of the current scene.
             if (curFrameIndex == endFrameIndex) {
-                draw(curFrameIndex);
+                that.draw(curFrameIndex);
 
             } else {
-                draw(curFrameIndex);
+                that.draw(curFrameIndex);
 
                 // draw next frame
                 that.playTimer = setTimeout(function () {
+                    //  draw direction
                     that.direct == "forward" ? drawSprite(parseInt(curFrameIndex)+1, endFrameIndex) : drawSprite(parseInt(curFrameIndex)-1, endFrameIndex);
                 }, 1000/20);
             }
         }
 
-        //  draw sprite into canvas
-        function draw(frameIndex) {
-            var img = that.sprites[frameIndex];
+        return null;
+    },
 
-            if (img) {
-                ctx.drawImage(img, 0, that.paper.canvas.height*0.156, that.paper.canvas.width, that.paper.canvas.height*0.721);
-            }
+    draw: function (frameIndex) {
+        /**
+         * Draw frame into canvas
+         * @param {Number} frameIndex  the index of frame you want to draw into canvas
+         * */
+        var that = this;
+        var img = that.sprites[frameIndex];
+        var ctx = that.paper.ctx;
+
+        if (img) {
+            //  clear paper
+            ctx.clearRect(0, 0, that.paper.canvas.width, that.paper.canvas.height);
+
+            //  draw image
+            ctx.drawImage(img, 0, that.paper.canvas.height*0.156, that.paper.canvas.width, that.paper.canvas.height*0.721);
         }
     },
 
