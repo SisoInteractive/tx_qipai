@@ -224,7 +224,7 @@ var app = {
             var img = that.sprites[frameIndex];
 
             if (img) {
-                ctx.drawImage(img, 0, that.paper.canvas.height*0.248, that.paper.canvas.width, that.paper.canvas.height*0.642);
+                ctx.drawImage(img, 0, that.paper.canvas.height*0.156, that.paper.canvas.width, that.paper.canvas.height*0.721);
             }
         }
     },
