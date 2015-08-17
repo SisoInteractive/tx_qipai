@@ -188,29 +188,41 @@ var app = {
         }
 
         function setCurrentFrame (e) {
-            var curPoint = e.touches[0].pageX;
-            var distance = 1;
+            if (that.isPlaying == false) {
+                var curPoint = e.touches[0].pageX;
+                var distance = 1;
 
-            var startFrame = that.sceneSpriteGroup[that.curIndex][0];
-            var endFrame = that.sceneSpriteGroup[that.curIndex][1];
+                var startFrame = that.sceneSpriteGroup[that.curIndex][0];
+                var endFrame = that.sceneSpriteGroup[that.curIndex][1];
 
-            //  calculate next frame index
-            if (curPoint > touchStartPoint) {
-                that.curFrameIndex -= distance;
-                that.curFrameIndex < startFrame ? that.curFrameIndex = startFrame : that.curFrameIndex;
+                //  calculate next frame index
+                if (curPoint > touchStartPoint) {
+                    that.curFrameIndex -= distance;
+
+                    if (that.curFrameIndex < startFrame) {
+                        that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
+                    }
+                } else {
+                    that.curFrameIndex += distance;
+
+                    if (that.curFrameIndex > endFrame) {
+                        that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
+                    }
+                }
+
+                //  draw next frame
+                that.draw(that.curFrameIndex);
             } else {
-                that.curFrameIndex += distance;
-                that.curFrameIndex > endFrame ? that.curFrameIndex = endFrame : that.curFrameIndex;
-            }
 
-            //  draw next frame
-            that.draw(that.curFrameIndex);
+            }
         }
     },
 
     curIndex: 0,
 
     curFrameIndex : 1,
+
+    isPlaying: false,
 
     playFrames: function (curFrameIndex, endFrameIndex) {
         /**
@@ -225,6 +237,8 @@ var app = {
         //  draw sprite
         drawSprite(curFrameIndex, endFrameIndex);
 
+        that.isPlaying = true;
+
         //  recursive to draw sprites
         function drawSprite(curFrameIndex, endFrameIndex) {
             that.curFrameIndex = curFrameIndex;
@@ -232,7 +246,7 @@ var app = {
             //  check whether currentFrame is the last frame of the current scene.
             if (curFrameIndex == endFrameIndex) {
                 that.draw(curFrameIndex);
-
+                that.isPlaying = false;
             } else {
                 that.draw(curFrameIndex);
 
