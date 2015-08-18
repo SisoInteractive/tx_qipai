@@ -106,9 +106,8 @@ var app = {
         that.playFrames(that.sceneSpriteGroup[that.curIndex][0], that.sceneSpriteGroup[that.curIndex][1]);
 
 
-        //  bind controller
+        //  bind swipe event
         var canvasDom = new Hammer(that.paper.canvas.dom);
-        //canvasDom.on('swipeleft', prevSceneHandler);
         canvasDom.on('swipeleft', nextSceneHandler);
         canvasDom.on('swiperight', prevSceneHandler);
 
@@ -116,13 +115,15 @@ var app = {
 
         document.getElementById('next').onclick = nextSceneHandler;
 
-        //  bind touch event
+        //  touch event
         var touchStartX = 0;
-        var minMove = 3;
-        var touchMoveTimer = null;
+
+        //  check whether tablet or smart phone
+        var minMove = that.paper.canvas.width >= 600 ? 1 : 3;
 
         that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint, false);
         that.paper.canvas.dom.addEventListener('touchmove', setCurrentFrame, false);
+
 
         //  play BGM immediately
         var initSound = function () {
