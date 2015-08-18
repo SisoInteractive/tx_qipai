@@ -110,7 +110,6 @@ var app = {
         var canvasDom = new Hammer(that.paper.canvas.dom);
         //canvasDom.on('swipeleft', prevSceneHandler);
         canvasDom.on('swipeleft', nextSceneHandler);
-
         canvasDom.on('swiperight', prevSceneHandler);
 
         document.getElementById('prev').onclick = prevSceneHandler;
@@ -118,12 +117,12 @@ var app = {
         document.getElementById('next').onclick = nextSceneHandler;
 
         //  bind touch event
-        var touchStartPoint = 0;
+        var touchStartX = 0;
         var minMove = 3;
+        var touchMoveTimer = null;
 
-        that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint);
-
-        that.paper.canvas.dom.addEventListener('touchmove', setCurrentFrame);
+        that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint, false);
+        that.paper.canvas.dom.addEventListener('touchmove', setCurrentFrame, false);
 
         //  play BGM immediately
         var initSound = function () {
@@ -139,11 +138,11 @@ var app = {
             clearTimeout(that.playTimer);
 
             that.direct = "backward";
+            that.isPlaying = true;
 
             //  check is the currentFrame is the first frame of the current scene.
             for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
                 var sceneSpritesFirstFrame = that.sceneSpriteGroup[i][0];
-                console.log(that.curIndex);
 
                 if (that.curFrameIndex == sceneSpritesFirstFrame) {
                     that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
@@ -167,6 +166,7 @@ var app = {
             clearTimeout(that.playTimer);
 
             that.direct = "forward";
+            that.isPlaying = true;
 
             //  check is the currentFrame is the last frame of the current scene.
             for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
@@ -190,45 +190,43 @@ var app = {
         }
 
         function setTouchStartPoint(e) {
-            touchStartPoint = e.touches[0].pageX;
+            touchStartX = parseInt(e.touches[0].pageX);
         }
 
         function setCurrentFrame (e) {
             if (that.isPlaying == false) {
                 //  get current touch position
-                var curPoint = e.touches[0].pageX;
-                var distance = Math.abs(curPoint - touchStartPoint);
+                var curX = parseInt(e.touches[0].pageX);
+                var movedX = curX - touchStartX;
 
                 var startFrame = that.sceneSpriteGroup[that.curIndex][0];
                 var endFrame = that.sceneSpriteGroup[that.curIndex][1];
 
                 //  calculate the next frame's index to draw
                 //  if the drag direction is "forward"
-                if (distance > minMove && curPoint > touchStartPoint) {
+                if (movedX < -minMove) {
                     that.curFrameIndex += 1;
 
                     if (that.curFrameIndex > endFrame) {
                         that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
                         that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
                     } else {
-
                     }
-                } else if (distance > minMove && curPoint < touchStartPoint) {
+                } else if (movedX > minMove) {
                     that.curFrameIndex -= 1;
 
                     if (that.curFrameIndex < startFrame) {
                         that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
                         that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
                     } else {
-
                     }
                 } else {
-
                 }
 
                 //  draw next frame
-                touchStartPoint = curPoint;
                 that.draw(that.curFrameIndex);
+                touchStartX = curX;
+                console.log('after:', touchStartX);
             } else {
 
             }
