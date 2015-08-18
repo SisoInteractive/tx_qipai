@@ -119,6 +119,7 @@ var app = {
 
         //  bind touch event
         var touchStartPoint = 0;
+        var minMove = 3;
 
         that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint);
 
@@ -152,6 +153,8 @@ var app = {
 
                     that.playFrames(startFrameIndex, endFrameIndex);
                     return null;
+                } else {
+
                 }
             }
 
@@ -177,6 +180,8 @@ var app = {
 
                     that.playFrames(startFrameIndex, endFrameIndex);
                     return null;
+                } else {
+
                 }
             }
 
@@ -190,31 +195,39 @@ var app = {
 
         function setCurrentFrame (e) {
             if (that.isPlaying == false) {
+                //  get current touch position
                 var curPoint = e.touches[0].pageX;
-                var distance = 1;
+                var distance = Math.abs(curPoint - touchStartPoint);
 
                 var startFrame = that.sceneSpriteGroup[that.curIndex][0];
                 var endFrame = that.sceneSpriteGroup[that.curIndex][1];
 
                 //  calculate the next frame's index to draw
                 //  if the drag direction is "forward"
-                if (curPoint < touchStartPoint) {
-                    that.curFrameIndex += distance;
+                if (distance > minMove && curPoint > touchStartPoint) {
+                    that.curFrameIndex += 1;
 
                     if (that.curFrameIndex > endFrame) {
                         that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
                         that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
+                    } else {
+
                     }
-                } else {
-                    that.curFrameIndex -= distance;
+                } else if (distance > minMove && curPoint < touchStartPoint) {
+                    that.curFrameIndex -= 1;
 
                     if (that.curFrameIndex < startFrame) {
                         that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
                         that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
+                    } else {
+
                     }
+                } else {
+
                 }
 
                 //  draw next frame
+                touchStartPoint = curPoint;
                 that.draw(that.curFrameIndex);
             } else {
 
@@ -280,6 +293,8 @@ var app = {
 
             //  draw image
             ctx.drawImage(img, 0, that.paper.canvas.height*0.156, that.paper.canvas.width, that.paper.canvas.height*0.721);
+        } else {
+
         }
     },
 
