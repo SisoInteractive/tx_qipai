@@ -49,7 +49,9 @@ var app = {
                     isLoaded = true;
 
                     console.log('images loader end..');
-                    app.create();
+                    setTimeout(function () {
+                        app.create();
+                    }, 300);
                 }
             };
 
