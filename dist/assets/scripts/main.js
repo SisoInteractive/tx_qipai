@@ -70,7 +70,7 @@ var app = {
         }
 
         function checkIsAllLoaded () {
-            var loadedRate = 0.8;
+            var loadedRate = 1;
             return loadedAmounts / imgAmounts >= loadedRate;
         }
 
