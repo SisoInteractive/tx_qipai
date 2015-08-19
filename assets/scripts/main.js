@@ -32,9 +32,9 @@ var app = {
         //  bind window resize handler
         document.body.onresize = windowResizeHandler;
 
-        for (var i = 1; i <= imgAmounts; i++) {
+        for (var i = 0; i <= imgAmounts; i++) {
             var img = new Image();
-            img.src = imgPath + 'final-3_xulie_' + this.utils.fixZero(i) + '.jpg';
+            img.src = imgPath + 'final_1080_1707_' + this.utils.fixZero(i) + '.jpg';
             img.index = i;
 
             img.onload = function () {
@@ -87,7 +87,7 @@ var app = {
         }
     },
 
-    create: function (){
+    create: function () {
         var that = this;
         console.log('app created success...');
 
@@ -100,16 +100,21 @@ var app = {
             [185, 212]
         ];
 
-        //  play frames with scene sprites indexes
         that.curIndex = 0;
         that.direct = 'forward';
+        var paraTimer = null;
+
+        //  play first scene
         that.playFrames(that.sceneSpriteGroup[that.curIndex][0], that.sceneSpriteGroup[that.curIndex][1]);
 
+        //  show para
+        showPara(that.curIndex);
 
         //  bind swipe event
-        var canvasDom = new Hammer(that.paper.canvas.dom);
-        canvasDom.on('swipeleft', nextSceneHandler);
-        canvasDom.on('swiperight', prevSceneHandler);
+        var touchArea = document.getElementById('scene-touch-area');
+        var swiper = new Hammer(touchArea);
+        swiper.on('swipeleft', nextSceneHandler);
+        swiper.on('swiperight', prevSceneHandler);
 
         document.getElementById('prev').onclick = prevSceneHandler;
 
@@ -121,8 +126,8 @@ var app = {
         //  check whether tablet or smart phone
         var minMove = that.paper.canvas.width >= 600 ? 1 : 3;
 
-        that.paper.canvas.dom.addEventListener('touchstart', setTouchStartPoint, false);
-        that.paper.canvas.dom.addEventListener('touchmove', setCurrentFrame, false);
+        //touchArea.addEventListener('touchstart', setTouchStartPoint, false);
+        //touchArea.addEventListener('touchmove', setCurrentFrame, false);
 
 
         //  play BGM immediately
@@ -133,68 +138,56 @@ var app = {
             document.removeEventListener('touchstart', initSound, false);
         };
         document.addEventListener('touchstart', initSound, false);
+        console.log(that.curIndex);
 
-        function prevSceneHandler () {
-            //  stop prev frames drawer
-            clearTimeout(that.playTimer);
+        function prevSceneHandler() {
+            if (that.isPlaying == false) {
+                //  stop prev frames drawer
+                clearTimeout(that.playTimer);
 
-            that.direct = "backward";
-            that.isPlaying = true;
+                that.direct = "backward";
 
-            //  check is the currentFrame is the first frame of the current scene.
-            for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
-                var sceneSpritesFirstFrame = that.sceneSpriteGroup[i][0];
+                var isTheFirstFrame = that.curFrameIndex == that.sceneSpriteGroup[that.curIndex][0];
 
-                if (that.curFrameIndex == sceneSpritesFirstFrame) {
+                if (isTheFirstFrame) {
+                    //  decrease the current scene index
                     that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
 
-                    var startFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
-                    var endFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
-
-                    that.playFrames(startFrameIndex, endFrameIndex);
-                    return null;
+                    that.playFrames(that.sceneSpriteGroup[that.curIndex][1], that.sceneSpriteGroup[that.curIndex][0]);
                 } else {
-
+                    that.playFrames(that.sceneSpriteGroup[that.curIndex][1], that.sceneSpriteGroup[that.curIndex][0]);
                 }
-            }
 
-            that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][0]);
-            return null;
+                showPara(that.curIndex-1 < 0 ? that.sceneSpriteGroup.length-1 : that.curIndex-1);
+            }
         }
 
-        function nextSceneHandler () {
-            //  stop prev frames drawer
-            clearTimeout(that.playTimer);
+        function nextSceneHandler() {
+            if (that.isPlaying == false) {
+                //  stop prev frames drawer
+                clearTimeout(that.playTimer);
 
-            that.direct = "forward";
-            that.isPlaying = true;
+                that.direct = "forward";
+                that.isPlaying = true;
 
-            //  check is the currentFrame is the last frame of the current scene.
-            for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
-                var sceneSpritesLastFrame = that.sceneSpriteGroup[i][1];
+                var isTheFirstFrame = that.curFrameIndex == that.sceneSpriteGroup[that.curIndex][0];
 
-                if (that.curFrameIndex == sceneSpritesLastFrame) {
-                    that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
-
-                    var startFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
-                    var endFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
-
-                    that.playFrames(startFrameIndex, endFrameIndex);
-                    return null;
+                if (isTheFirstFrame) {
+                    that.playFrames(that.sceneSpriteGroup[that.curIndex][0], that.sceneSpriteGroup[that.curIndex][1]);
                 } else {
-
+                    that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
+                    that.playFrames(that.sceneSpriteGroup[that.curIndex][0], that.sceneSpriteGroup[that.curIndex][1]);
                 }
-            }
 
-            that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][1]);
-            return null;
+                showPara(that.curIndex);
+            }
         }
 
         function setTouchStartPoint(e) {
             touchStartX = parseInt(e.touches[0].pageX);
         }
 
-        function setCurrentFrame (e) {
+        function setCurrentFrame(e) {
             if (that.isPlaying == false) {
                 //  get current touch position
                 var curX = parseInt(e.touches[0].pageX);
@@ -227,11 +220,31 @@ var app = {
                 //  draw next frame
                 that.draw(that.curFrameIndex);
                 touchStartX = curX;
-                console.log('after:', touchStartX);
             } else {
 
             }
         }
+
+        //  show para
+        function showPara(index) {
+            clearTimeout(paraTimer);
+
+            var paraArr = document.getElementsByClassName('para');
+
+            //  remove all para's active statue
+            for (var i = 0; i < paraArr.length; i++) {
+                paraArr[i].className = paraArr[i].className.replace(' active', '');
+            }
+
+            //  show para
+            paraTimer = setTimeout(function () {
+                //  ignore the last scene
+                if (index < that.sceneSpriteGroup.length - 1 && index >= 0) {
+                    document.getElementsByClassName('para0' + (index + 1))[0].className = document.getElementsByClassName('para0' + (index + 1))[0].className + ' active';
+                }
+            }, 600);
+        }
+
     },
 
     curIndex: 0,
@@ -291,7 +304,7 @@ var app = {
             ctx.clearRect(0, 0, that.paper.canvas.width, that.paper.canvas.height);
 
             //  draw image
-            ctx.drawImage(img, 0, that.paper.canvas.height*0.156, that.paper.canvas.width, that.paper.canvas.height*0.721);
+            ctx.drawImage(img, 0, that.paper.canvas.height*0.309, that.paper.canvas.width, that.paper.canvas.height*0.567);
         } else {
 
         }

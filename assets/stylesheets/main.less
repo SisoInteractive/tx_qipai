@@ -43,8 +43,17 @@ input {
 
 /* scene */
 #scene {
-  background: url("../images/final-3_xulie_bg.jpg") no-repeat;
+  background: url("../images/final_1080_1707_bg.jpg") no-repeat;
   background-size: 100% 100%;
+}
+
+#scene-touch-area {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
 }
 
 /* controller */
@@ -61,6 +70,44 @@ input {
     font-size: 40px;
     padding: 0 20px;
   }
+}
+
+/* title */
+.title {
+  position: absolute;
+  left: 0;
+  top: 7.1%;
+  width: 100%;
+}
+
+/* para */
+.para {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity .6s ease-in-out;
+
+  img {
+    width: 100%;
+    position: absolute;
+    left: 0;
+  }
+
+  .desc {
+    top: 17.1%;
+  }
+
+  .title {
+    top: auto;
+    bottom: 3.8%;
+  }
+}
+
+.para.active {
+  opacity: 1;
 }
 
 
