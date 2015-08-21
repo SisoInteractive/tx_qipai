@@ -5,6 +5,8 @@
 var app = {
     sprites: [],
 
+    fixedSprites: [],
+
     paper: {
         canvas: {
             dom: null,
@@ -32,6 +34,23 @@ var app = {
         //  bind window resize handler
         document.body.onresize = windowResizeHandler;
 
+        //  load fixed scene frames
+
+        for (var i = 1; i <= 66; i++) {
+            var img = new Image();
+            if (i > 23) {
+                img.src = imgPath + 'f_' + that.utils.fixZero(i+3) + '.jpg';
+            } else {
+                img.src = imgPath + 'f_' + that.utils.fixZero(i) + '.jpg';
+            }
+            img.index = i;
+
+            img.onload = function () {
+                that.fixedSprites[this.index] = this;
+            }
+        }
+
+        //  load scene frames
         for (var i = 0; i <= imgAmounts; i++) {
             var img = new Image();
             img.src = imgPath + 'final_1080_1707_' + this.utils.fixZero(i) + '.jpg';
@@ -87,6 +106,18 @@ var app = {
             that.paper.canvas.width = Canvas.width;
             that.paper.canvas.height = Canvas.height;
         }
+
+        //  get widthRatio and heightRatio
+        var bg = new Image();
+        bg.src = 'assets/images/final_1080_1707_bg.jpg';
+
+        bg.onload = function () {
+            var weightHeightRatio = bg.width / bg.height;
+            that.heightRatio = that.paper.canvas.dom.height / bg.height;
+            //console.log(that.heightRatio, ' ',weightHeightRatio);
+            //var difference = Math.abs(that.heightRatio - weightHeightRatio);
+            console.log(bg.width * that.heightRatio);
+        };
     },
 
     create: function () {
@@ -100,6 +131,14 @@ var app = {
             [78, 118],
             [119, 184],
             [185, 212]
+        ];
+
+        //  sprite indexes for each scene's fixed animation
+        that.fixedSpriteGroup = [
+            [1, 11],
+            [12, 23],
+            [24, 64],
+            [65, 66]
         ];
 
         that.curIndex = 0;
@@ -268,6 +307,8 @@ var app = {
         //  draw sprite
         drawSprite(curFrameIndex, endFrameIndex);
 
+        //  clean fixed timer player
+        clearTimeout(that.playFixedTimer);
         that.isPlaying = true;
 
         //  recursive to draw sprites
@@ -277,6 +318,7 @@ var app = {
             //  check whether currentFrame is the last frame of the current scene.
             if (curFrameIndex == endFrameIndex) {
                 that.draw(curFrameIndex);
+                that.direct == "forward" ? that.playFixedFrames(that.curIndex) : null;
                 that.isPlaying = false;
             } else {
                 that.draw(curFrameIndex);
@@ -286,6 +328,75 @@ var app = {
                     //  draw direction
                     that.direct == "forward" ? drawSprite(parseInt(curFrameIndex)+1, endFrameIndex) : drawSprite(parseInt(curFrameIndex)-1, endFrameIndex);
                 }, 1000/20);
+            }
+        }
+
+        return null;
+    },
+
+    playFixedFrames: function (curSceneIndex) {
+        /**
+         * Play fixed frames for each scene, when the scene animation is stoped
+         * @param {Number} frameIndex  the index of fixed frame array
+         * @return {Null} null
+         */
+        var that = this;
+        var ctx = that.paper.ctx;
+
+        //  draw sprite
+        if (that.fixedSpriteGroup[curSceneIndex]) {
+            drawSprite(that.fixedSpriteGroup[curSceneIndex][0], that.fixedSpriteGroup[curSceneIndex][1]);
+
+            that.isPlaying = true;
+        }
+
+        //  recursive to draw sprites
+        function drawSprite(curFrameIndex, endFrameIndex) {
+            var curIndex = curFrameIndex;
+
+            if (curIndex > endFrameIndex) {
+                curIndex = that.fixedSpriteGroup[curSceneIndex][0];
+                draw(curIndex);
+            } else {
+                draw(curIndex);
+            }
+
+            // draw next frame
+            that.playFixedTimer = setTimeout(function () {
+                drawSprite(curIndex+1, endFrameIndex);
+            }, 1000/10);
+        }
+
+        function draw(frameIndex) {
+            /**
+             * Draw frame into canvas
+             * @param {Number} frameIndex  the index of frame you want to draw into canvas
+             * */
+            var img = that.fixedSprites[frameIndex];
+            var ctx = that.paper.ctx;
+
+            if (img) {
+                //  draw image
+                switch (parseInt(that.curIndex)) {
+                    case 0:
+                        //  xiangqi
+                        ctx.drawImage(img, 0, that.paper.canvas.height*0.48295, that.paper.canvas.width, that.paper.canvas.height*0.054);
+                        break;
+                    case 1:
+                        //  doudizhu
+                        ctx.drawImage(img, 0, that.paper.canvas.height*0.457 * that.heightRatio, that.paper.canvas.width, that.paper.canvas.height*0.082);
+                        break;
+                    case 2:
+                        //  majiang
+                        ctx.drawImage(img, 0, that.paper.canvas.height*0.491, that.paper.canvas.width, that.paper.canvas.height*0.053);
+                        break;
+                    case 3:
+                        //  puke
+                        ctx.drawImage(img, 0, that.paper.canvas.height*0.561, that.paper.canvas.width, that.paper.canvas.height*0.079);
+                        break;
+                }
+            } else {
+
             }
         }
 
