@@ -13,7 +13,19 @@
 </head>
 <body>
 
-<script src="https://code.createjs.com/tweenjs-0.6.1.min.js"></script>
+<script src="//localhost:35729/livereload.js"></script>
+
+<script>
+    var clientWeight = window.screen.availWidth;
+    var clientHeight = window.screen.availHeight;
+
+    console.log('weight/height: ', clientWeight/clientHeight);
+
+    console.log('origin weight/height', 750/1187);
+
+    console.log('weight/weight, height/height: ', clientWeight/750, clientHeight/1187);
+    console.log(clientWeight/1187*(Math.min(clientWeight/750, clientHeight/1187)));
+</script>
 
 </body>
 </html>

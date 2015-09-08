@@ -22,8 +22,6 @@ var app = {
         var Canvas = document.getElementById('scene');
         var ctx = Canvas.getContext('2d');
 
-        windowResizeHandler();
-
         //  set images generator
         var imgPath = "assets/images/";
         //  img amounts, use the amounts order to general image objects
@@ -31,18 +29,11 @@ var app = {
         var loadedAmounts = 0;
         var isLoaded = false;
 
-        //  bind window resize handler
-        document.body.onresize = windowResizeHandler;
-
         //  load fixed scene frames
-
-        for (var i = 1; i <= 66; i++) {
+        for (var i = 1; i <= 45; i++) {
             var img = new Image();
-            if (i > 23) {
-                img.src = imgPath + 'f_' + that.utils.fixZero(i+3) + '.jpg';
-            } else {
-                img.src = imgPath + 'f_' + that.utils.fixZero(i) + '.jpg';
-            }
+            img.src = imgPath + 'f_' + that.utils.fixZero(i) + '.png';
+
             img.index = i;
 
             img.onload = function () {
@@ -83,7 +74,9 @@ var app = {
                     isLoaded = true;
 
                     console.log('images loader end..');
-                    app.create();
+                    setTimeout(function () {
+                        app.create();
+                    }, 300);
                 }
             };
         }
@@ -93,31 +86,15 @@ var app = {
             return loadedAmounts / imgAmounts >= loadedRate;
         }
 
-        function windowResizeHandler () {
-            //  init canvas size
-            Canvas.width = document.body.clientWidth;
-            Canvas.height = document.body.clientHeight;
-            Canvas.style.width = document.body.clientWidth + 'px';
-            Canvas.style.height = document.body.clientHeight + 'px';
-
-            //  init paper info
-            that.paper.ctx = ctx;
-            that.paper.canvas.dom = Canvas;
-            that.paper.canvas.width = Canvas.width;
-            that.paper.canvas.height = Canvas.height;
-        }
-
         //  get widthRatio and heightRatio
         var bg = new Image();
         bg.src = 'assets/images/final_1080_1707_bg.jpg';
 
-        bg.onload = function () {
-            var weightHeightRatio = bg.width / bg.height;
-            that.heightRatio = that.paper.canvas.dom.height / bg.height;
-            //console.log(that.heightRatio, ' ',weightHeightRatio);
-            //var difference = Math.abs(that.heightRatio - weightHeightRatio);
-            console.log(bg.width * that.heightRatio);
-        };
+        //  init paper info
+        that.paper.ctx = ctx;
+        that.paper.canvas.dom = Canvas;
+        that.paper.canvas.width = Canvas.width;
+        that.paper.canvas.height = Canvas.height;
     },
 
     create: function () {
@@ -129,16 +106,16 @@ var app = {
             [1, 37],
             [38, 77],
             [78, 118],
-            [119, 184],
-            [185, 212]
+            [119, 186],
+            [187, 212]
         ];
 
         //  sprite indexes for each scene's fixed animation
         that.fixedSpriteGroup = [
-            [1, 11],
-            [12, 23],
-            [24, 64],
-            [65, 66]
+            [1, 10],
+            [11, 20],
+            [21, 43],
+            [44, 45]
         ];
 
         that.curIndex = 0;
@@ -364,7 +341,7 @@ var app = {
             // draw next frame
             that.playFixedTimer = setTimeout(function () {
                 drawSprite(curIndex+1, endFrameIndex);
-            }, 1000/10);
+            }, 1000/4);
         }
 
         function draw(frameIndex) {
@@ -377,24 +354,7 @@ var app = {
 
             if (img) {
                 //  draw image
-                switch (parseInt(that.curIndex)) {
-                    case 0:
-                        //  xiangqi
-                        ctx.drawImage(img, 0, that.paper.canvas.height*0.48295, that.paper.canvas.width, that.paper.canvas.height*0.054);
-                        break;
-                    case 1:
-                        //  doudizhu
-                        ctx.drawImage(img, 0, that.paper.canvas.height*0.457 * that.heightRatio, that.paper.canvas.width, that.paper.canvas.height*0.082);
-                        break;
-                    case 2:
-                        //  majiang
-                        ctx.drawImage(img, 0, that.paper.canvas.height*0.491, that.paper.canvas.width, that.paper.canvas.height*0.053);
-                        break;
-                    case 3:
-                        //  puke
-                        ctx.drawImage(img, 0, that.paper.canvas.height*0.561, that.paper.canvas.width, that.paper.canvas.height*0.079);
-                        break;
-                }
+                ctx.drawImage(img, 0, that.paper.canvas.height*0.331, that.paper.canvas.width, that.paper.canvas.height*0.546);
             } else {
 
             }
@@ -417,7 +377,7 @@ var app = {
             ctx.clearRect(0, 0, that.paper.canvas.width, that.paper.canvas.height);
 
             //  draw image
-            ctx.drawImage(img, 0, that.paper.canvas.height*0.309, that.paper.canvas.width, that.paper.canvas.height*0.567);
+            ctx.drawImage(img, 0, that.paper.canvas.height*0.331, that.paper.canvas.width, that.paper.canvas.height*0.546);
         } else {
 
         }
@@ -435,6 +395,14 @@ var app = {
 };
 
 window.onload = function () {
+    //  set page response
+    var page = new pageResponse({
+        class : 'scene-wrap',     //模块的类名，使用class来控制页面上的模块(1个或多个)
+        mode : 'contain',     // auto || contain || cover
+        width : '375',      //输入页面的宽度，只支持输入数值，默认宽度为320px
+        height : '593'      //输入页面的高度，只支持输入数值，默认高度为504px
+    });
+
     // init app
     app.start();
 };

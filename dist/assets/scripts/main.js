@@ -5,6 +5,8 @@
 var app = {
     sprites: [],
 
+    fixedSprites: [],
+
     paper: {
         canvas: {
             dom: null,
@@ -20,8 +22,6 @@ var app = {
         var Canvas = document.getElementById('scene');
         var ctx = Canvas.getContext('2d');
 
-        windowResizeHandler();
-
         //  set images generator
         var imgPath = "assets/images/";
         //  img amounts, use the amounts order to general image objects
@@ -29,9 +29,22 @@ var app = {
         var loadedAmounts = 0;
         var isLoaded = false;
 
-        //  bind window resize handler
-        document.body.onresize = windowResizeHandler;
+        //  load fixed scene frames
+        for (var i = 1; i <= 66; i++) {
+            var img = new Image();
+            if (i > 23) {
+                img.src = imgPath + 'f_' + that.utils.fixZero(i+3) + '.jpg';
+            } else {
+                img.src = imgPath + 'f_' + that.utils.fixZero(i) + '.jpg';
+            }
+            img.index = i;
 
+            img.onload = function () {
+                that.fixedSprites[this.index] = this;
+            }
+        }
+
+        //  load scene frames
         for (var i = 0; i <= imgAmounts; i++) {
             var img = new Image();
             img.src = imgPath + 'final_1080_1707_' + this.utils.fixZero(i) + '.jpg';
@@ -74,19 +87,23 @@ var app = {
             return loadedAmounts / imgAmounts >= loadedRate;
         }
 
-        function windowResizeHandler () {
-            //  init canvas size
-            Canvas.width = document.body.clientWidth;
-            Canvas.height = document.body.clientHeight;
-            Canvas.style.width = document.body.clientWidth + 'px';
-            Canvas.style.height = document.body.clientHeight + 'px';
+        //  get widthRatio and heightRatio
+        var bg = new Image();
+        bg.src = 'assets/images/final_1080_1707_bg.jpg';
 
-            //  init paper info
-            that.paper.ctx = ctx;
-            that.paper.canvas.dom = Canvas;
-            that.paper.canvas.width = Canvas.width;
-            that.paper.canvas.height = Canvas.height;
-        }
+        bg.onload = function () {
+            var weightHeightRatio = bg.width / bg.height;
+            that.heightRatio = that.paper.canvas.dom.height / bg.height;
+            //console.log(that.heightRatio, ' ',weightHeightRatio);
+            //var difference = Math.abs(that.heightRatio - weightHeightRatio);
+            console.log(bg.width * that.heightRatio);
+        };
+
+        //  init paper info
+        that.paper.ctx = ctx;
+        that.paper.canvas.dom = Canvas;
+        that.paper.canvas.width = Canvas.width;
+        that.paper.canvas.height = Canvas.height;
     },
 
     create: function () {
@@ -98,8 +115,16 @@ var app = {
             [1, 37],
             [38, 77],
             [78, 118],
-            [119, 184],
-            [185, 212]
+            [119, 186],
+            [187, 212]
+        ];
+
+        //  sprite indexes for each scene's fixed animation
+        that.fixedSpriteGroup = [
+            [1, 11],
+            [12, 23],
+            [24, 64],
+            [65, 66]
         ];
 
         that.curIndex = 0;
@@ -268,6 +293,8 @@ var app = {
         //  draw sprite
         drawSprite(curFrameIndex, endFrameIndex);
 
+        //  clean fixed timer player
+        clearTimeout(that.playFixedTimer);
         that.isPlaying = true;
 
         //  recursive to draw sprites
@@ -277,6 +304,7 @@ var app = {
             //  check whether currentFrame is the last frame of the current scene.
             if (curFrameIndex == endFrameIndex) {
                 that.draw(curFrameIndex);
+                that.direct == "forward" ? that.playFixedFrames(that.curIndex) : null;
                 that.isPlaying = false;
             } else {
                 that.draw(curFrameIndex);
@@ -286,6 +314,75 @@ var app = {
                     //  draw direction
                     that.direct == "forward" ? drawSprite(parseInt(curFrameIndex)+1, endFrameIndex) : drawSprite(parseInt(curFrameIndex)-1, endFrameIndex);
                 }, 1000/20);
+            }
+        }
+
+        return null;
+    },
+
+    playFixedFrames: function (curSceneIndex) {
+        /**
+         * Play fixed frames for each scene, when the scene animation is stoped
+         * @param {Number} frameIndex  the index of fixed frame array
+         * @return {Null} null
+         */
+        var that = this;
+        var ctx = that.paper.ctx;
+
+        //  draw sprite
+        if (that.fixedSpriteGroup[curSceneIndex]) {
+            drawSprite(that.fixedSpriteGroup[curSceneIndex][0], that.fixedSpriteGroup[curSceneIndex][1]);
+
+            that.isPlaying = true;
+        }
+
+        //  recursive to draw sprites
+        function drawSprite(curFrameIndex, endFrameIndex) {
+            var curIndex = curFrameIndex;
+
+            if (curIndex > endFrameIndex) {
+                curIndex = that.fixedSpriteGroup[curSceneIndex][0];
+                draw(curIndex);
+            } else {
+                draw(curIndex);
+            }
+
+            // draw next frame
+            that.playFixedTimer = setTimeout(function () {
+                drawSprite(curIndex+1, endFrameIndex);
+            }, 1000/10);
+        }
+
+        function draw(frameIndex) {
+            /**
+             * Draw frame into canvas
+             * @param {Number} frameIndex  the index of frame you want to draw into canvas
+             * */
+            var img = that.fixedSprites[frameIndex];
+            var ctx = that.paper.ctx;
+
+            if (img) {
+                //  draw image
+                switch (parseInt(that.curIndex)) {
+                    case 0:
+                        //  xiangqi
+                        ctx.drawImage(img, 0, 296, that.paper.canvas.width, 32);
+                        break;
+                    case 1:
+                        //  doudizhu
+                        ctx.drawImage(img, 0, 272, that.paper.canvas.width, 49);
+                        break;
+                    case 2:
+                        //  majiang
+                        ctx.drawImage(img, 0, 299, that.paper.canvas.width, 33);
+                        break;
+                    case 3:
+                        //  puke
+                        ctx.drawImage(img, 0, 353, that.paper.canvas.width, 18);
+                        break;
+                }
+            } else {
+
             }
         }
 
@@ -306,7 +403,7 @@ var app = {
             ctx.clearRect(0, 0, that.paper.canvas.width, that.paper.canvas.height);
 
             //  draw image
-            ctx.drawImage(img, 0, that.paper.canvas.height*0.309, that.paper.canvas.width, that.paper.canvas.height*0.567);
+            ctx.drawImage(img, 0, 197, that.paper.canvas.width, 324);
         } else {
 
         }
@@ -324,6 +421,14 @@ var app = {
 };
 
 window.onload = function () {
+    //  set page response
+    var page = new pageResponse({
+        class : 'scene-wrap',     //模块的类名，使用class来控制页面上的模块(1个或多个)
+        mode : 'contain',     // auto || contain || cover
+        width : '375',      //输入页面的宽度，只支持输入数值，默认宽度为320px
+        height : '593'      //输入页面的高度，只支持输入数值，默认高度为504px
+    });
+
     // init app
     app.start();
 };

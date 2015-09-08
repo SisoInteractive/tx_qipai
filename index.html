@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta content="telephone=no" name="format-detection">
-    <meta name="viewport" content="width=375,maximum-scale=1.3,user-scalable=no,minimal-ui"/>
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
     <meta name="apple-touch-fullscreen" content="no"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
@@ -16,32 +16,36 @@
 </head>
 <body>
 
-<canvas id="scene"></canvas>
-<div id="scene-touch-area"></div>
+<!-- scene -->
+<div class="scene-wrap">
+    <canvas id="scene" class="scene" width="375" height="593"></canvas>
+    <div id="scene-touch-area"></div>
 
-<img class="title" src="assets/images/title.png" alt=""/>
+    <img class="title" src="assets/images/title.png" alt=""/>
 
-<!-- text -->
-<div class="para para01">
-    <img class="desc" src="assets/images/xiangqi01.png" alt=""/>
-    <img class="title" src="assets/images/xiangqi02.png" alt=""/>
+    <!-- text -->
+    <div class="para para01">
+        <img class="desc" src="assets/images/xiangqi01.png" alt=""/>
+        <img class="title" src="assets/images/xiangqi02.png" alt=""/>
+    </div>
+
+    <div class="para para02">
+        <img class="desc" src="assets/images/dizhu01.png" alt=""/>
+        <img class="title" src="assets/images/dizhu02.png" alt=""/>
+    </div>
+
+    <div class="para para03">
+        <img class="desc" src="assets/images/majiang01.png" alt=""/>
+        <img class="title" src="assets/images/majiang02.png" alt=""/>
+    </div>
+
+    <div class="para para04">
+        <img class="desc" src="assets/images/puke01.png" alt=""/>
+        <img class="title" src="assets/images/puke02.png" alt=""/>
+    </div>
+    <!-- end text -->
 </div>
-
-<div class="para para02">
-    <img class="desc" src="assets/images/dizhu01.png" alt=""/>
-    <img class="title" src="assets/images/dizhu02.png" alt=""/>
-</div>
-
-<div class="para para03">
-    <img class="desc" src="assets/images/majiang01.png" alt=""/>
-    <img class="title" src="assets/images/majiang02.png" alt=""/>
-</div>
-
-<div class="para para04">
-    <img class="desc" src="assets/images/puke01.png" alt=""/>
-    <img class="title" src="assets/images/puke02.png" alt=""/>
-</div>
-<!-- end text -->
+<!-- end scene -->
 
 <!-- controller -->
 <div class="controller">
@@ -55,6 +59,7 @@
 <!-- page -->
 <script src="//localhost:35729/livereload.js"></script>
 <script src="assets/scripts/hammer.min.js"></script>
+<script src="assets/scripts/pageResponse.min.js"></script>
 <script src="assets/scripts/main.js"></script>
 
 <!-- less compiler -->
