@@ -7,6 +7,8 @@ var app = {
 
     fixedSprites: [],
 
+    titleSprite: undefined,
+
     paper: {
         canvas: {
             dom: null,
@@ -25,7 +27,7 @@ var app = {
         //  set images generator
         var imgPath = "assets/images/";
         //  img amounts, use the amounts order to general image objects
-        var imgAmounts = 212;
+        var imgAmounts = 212+1;
         var loadedAmounts = 0;
         var isLoaded = false;
 
@@ -44,7 +46,7 @@ var app = {
         //  load scene frames
         for (var i = 0; i <= imgAmounts; i++) {
             var img = new Image();
-            img.src = imgPath + 'final_1080_1707_' + this.utils.fixZero(i) + '.jpg';
+            img.src = imgPath + 'final_1080_1707_0831_' + this.utils.fixZero(i) + '.jpg';
             img.index = i;
 
             img.onload = function () {
@@ -53,32 +55,47 @@ var app = {
                 //  add to sprites
                 that.sprites[this.index] = this;
 
-                /* check img load progress */
-                if (checkIsAllLoaded() && isLoaded == false) {
-                    var runningTimerEnd = new Date();
-                    isLoaded = true;
-
-                    console.log('images loader end..');
-                    setTimeout(function () {
-                        app.create();
-                    }, 300);
-                }
+                checkLoadedAndGoToCreateState();
             };
 
             img.onerror = function (error) {
                 imgAmounts -= 1;
 
-                /* check img load progress */
-                if (checkIsAllLoaded() && isLoaded == false) {
-                    var runningTimerEnd = new Date();
-                    isLoaded = true;
-
-                    console.log('images loader end..');
-                    setTimeout(function () {
-                        app.create();
-                    }, 300);
-                }
+                checkLoadedAndGoToCreateState();
             };
+        }
+
+        //  load title sprite
+        (function () {
+            var img = new Image();
+            img.src = imgPath + 'title-sprite.png';
+
+            img.onload = function () {
+                loadedAmounts++;
+
+                //  add to sprites
+                that.titleSprite = this;
+
+                checkLoadedAndGoToCreateState();
+            };
+
+            img.onerror = function (error) {
+                imgAmounts -= 1;
+
+                checkLoadedAndGoToCreateState();
+            };
+        })();
+
+        function checkLoadedAndGoToCreateState () {
+            /* check img load progress */
+            if (checkIsAllLoaded() && isLoaded == false) {
+                isLoaded = true;
+
+                console.log('images loader end..');
+                setTimeout(function () {
+                    app.create();
+                }, 300);
+            }
         }
 
         function checkIsAllLoaded () {
@@ -130,13 +147,29 @@ var app = {
 
         //  bind swipe event
         var touchArea = document.getElementById('scene-touch-area');
-        var swiper = new Hammer(touchArea);
-        swiper.on('swipeleft', nextSceneHandler);
-        swiper.on('swiperight', prevSceneHandler);
+        //var swiper = new Hammer(touchArea);
+        //swiper.on('swipeleft', nextSceneHandler);
+        //swiper.on('swiperight', prevSceneHandler);
 
         document.getElementById('prev').onclick = prevSceneHandler;
 
         document.getElementById('next').onclick = nextSceneHandler;
+
+        //  bind share layout buttons
+        var againButton = document.getElementsByClassName('btn01')[0];
+        var shareButton = document.getElementsByClassName('btn02')[0];
+
+        againButton.onclick = function () {
+            //  hide share layout
+            var shareLayout = document.getElementsByClassName('share')[0];
+            shareLayout.className = shareLayout.className.replace(' active', '');
+
+            that.direct = "forward";
+            that.curIndex = 0;
+            setTimeout(function () {
+                that.playFrames(that.sceneSpriteGroup[0][0], that.sceneSpriteGroup[0][1]);
+            }, 1600);
+        };
 
         //  touch event
         var touchStartX = 0;
@@ -144,9 +177,15 @@ var app = {
         //  check whether tablet or smart phone
         var minMove = that.paper.canvas.width >= 600 ? 1 : 3;
 
-        //touchArea.addEventListener('touchstart', setTouchStartPoint, false);
-        //touchArea.addEventListener('touchmove', setCurrentFrame, false);
+        touchArea.addEventListener('touchstart', setTouchStartPoint, false);
+        touchArea.addEventListener('touchmove', setCurrentFrame, false);
+        touchArea.addEventListener('touchend', touchEndHandler, false);
 
+        //  create title obj
+        that.title = new Title();
+
+        //  update title
+        that.title.update();
 
         //  play BGM immediately
         var initSound = function () {
@@ -164,17 +203,9 @@ var app = {
                 clearTimeout(that.playTimer);
 
                 that.direct = "backward";
+                that.isPlaying = true;
 
-                var isTheFirstFrame = that.curFrameIndex == that.sceneSpriteGroup[that.curIndex][0];
-
-                if (isTheFirstFrame) {
-                    //  decrease the current scene index
-                    that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
-
-                    that.playFrames(that.sceneSpriteGroup[that.curIndex][1], that.sceneSpriteGroup[that.curIndex][0]);
-                } else {
-                    that.playFrames(that.sceneSpriteGroup[that.curIndex][1], that.sceneSpriteGroup[that.curIndex][0]);
-                }
+                that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][0]);
 
                 showPara(that.curIndex-1 < 0 ? that.sceneSpriteGroup.length-1 : that.curIndex-1);
             }
@@ -188,14 +219,7 @@ var app = {
                 that.direct = "forward";
                 that.isPlaying = true;
 
-                var isTheFirstFrame = that.curFrameIndex == that.sceneSpriteGroup[that.curIndex][0];
-
-                if (isTheFirstFrame) {
-                    that.playFrames(that.sceneSpriteGroup[that.curIndex][0], that.sceneSpriteGroup[that.curIndex][1]);
-                } else {
-                    that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
-                    that.playFrames(that.sceneSpriteGroup[that.curIndex][0], that.sceneSpriteGroup[that.curIndex][1]);
-                }
+                that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][1]);
 
                 showPara(that.curIndex);
             }
@@ -203,6 +227,9 @@ var app = {
 
         function setTouchStartPoint(e) {
             touchStartX = parseInt(e.touches[0].pageX);
+
+            that.canPlayFixedFrames = false;
+            that.startTime = new Date().getTime();
         }
 
         function setCurrentFrame(e) {
@@ -218,18 +245,37 @@ var app = {
                 //  if the drag direction is "forward"
                 if (movedX < -minMove) {
                     that.curFrameIndex += 1;
+                    that.direct = 'forward';
 
+                    //  if went to the next scene
                     if (that.curFrameIndex > endFrame) {
-                        that.curIndex + 1 == that.sceneSpriteGroup.length ? that.curIndex = 0 : that.curIndex += 1;
-                        that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
+                        if (that.curIndex + 1 == that.sceneSpriteGroup.length) {
+                            that.curFrameIndex -= 1;
+                        } else {
+                            that.curIndex += 1;
+                            that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][0];
+                        }
+
+                        //  show para
+                        showPara(that.curIndex);
                     } else {
                     }
+
                 } else if (movedX > minMove) {
                     that.curFrameIndex -= 1;
+                    that.direct = 'backward';
 
+                    //  if went to the previous scene
                     if (that.curFrameIndex < startFrame) {
-                        that.curIndex - 1 < 0 ? that.curIndex = that.sceneSpriteGroup.length - 1 : that.curIndex -= 1;
-                        that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
+                        if (that.curIndex - 1 < 0) {
+                            that.curFrameIndex += 1;
+                        } else {
+                            that.curIndex -= 1;
+                            that.curFrameIndex = that.sceneSpriteGroup[that.curIndex][1];
+                        }
+
+                        //  show para
+                        showPara(that.curIndex);
                     } else {
                     }
                 } else {
@@ -240,6 +286,14 @@ var app = {
                 touchStartX = curX;
             } else {
 
+            }
+        }
+
+        function touchEndHandler () {
+            that.endTime = new Date().getTime();
+
+            if (that.endTime - that.startTime <= 300) {
+                that.direct == 'forward' ? nextSceneHandler() : prevSceneHandler();
             }
         }
 
@@ -255,10 +309,41 @@ var app = {
             }
 
             //  show para
+            var shareLayout = document.getElementsByClassName('share')[0];
+
             paraTimer = setTimeout(function () {
                 //  ignore the last scene
                 if (index < that.sceneSpriteGroup.length - 1 && index >= 0) {
                     document.getElementsByClassName('para0' + (index + 1))[0].className = document.getElementsByClassName('para0' + (index + 1))[0].className + ' active';
+
+                    if (that.direct == 'backward') {
+                        //  play title
+                        that.title.update();
+
+                        setTimeout(function () {
+                            that.title.stop(that.curIndex-1);
+                        }, 1500);
+                    } else {
+                        //  play title
+                        that.title.update();
+
+                        setTimeout(function () {
+                            that.title.stop(that.curIndex);
+
+                        }, 1500);
+                    }
+                } else {
+                    that.title.clear();
+                }
+
+                if (that.curIndex == that.sceneSpriteGroup.length-1) {
+                    //  show share layout
+                    if (shareLayout.className.indexOf('active') < 0) {
+                        shareLayout.className = shareLayout.className + ' active';
+                    }
+                } else {
+                    //  hide share layout
+                    shareLayout.className = shareLayout.className.replace(' active', '');
                 }
             }, 600);
         }
@@ -286,7 +371,6 @@ var app = {
 
         //  clean fixed timer player
         clearTimeout(that.playFixedTimer);
-        that.isPlaying = true;
 
         //  recursive to draw sprites
         function drawSprite(curFrameIndex, endFrameIndex) {
@@ -295,7 +379,14 @@ var app = {
             //  check whether currentFrame is the last frame of the current scene.
             if (curFrameIndex == endFrameIndex) {
                 that.draw(curFrameIndex);
-                that.direct == "forward" ? that.playFixedFrames(that.curIndex) : null;
+
+                for (var i = 0; i < that.sceneSpriteGroup.length; i++) {
+                    if (that.sceneSpriteGroup[i][1] == that.curFrameIndex) {
+                        that.canPlayFixedFrames = true;
+                        that.playFixedFrames(that.curIndex);
+                    }
+                }
+
                 that.isPlaying = false;
             } else {
                 that.draw(curFrameIndex);
@@ -311,6 +402,8 @@ var app = {
         return null;
     },
 
+    canPlayFixedFrames: false,
+
     playFixedFrames: function (curSceneIndex) {
         /**
          * Play fixed frames for each scene, when the scene animation is stoped
@@ -321,14 +414,15 @@ var app = {
         var ctx = that.paper.ctx;
 
         //  draw sprite
-        if (that.fixedSpriteGroup[curSceneIndex]) {
+        if (that.canPlayFixedFrames && that.fixedSpriteGroup[curSceneIndex]) {
             drawSprite(that.fixedSpriteGroup[curSceneIndex][0], that.fixedSpriteGroup[curSceneIndex][1]);
-
-            that.isPlaying = true;
         }
 
         //  recursive to draw sprites
         function drawSprite(curFrameIndex, endFrameIndex) {
+            //  stop draw fixed frames
+            if (that.canPlayFixedFrames == false ) { return;}
+
             var curIndex = curFrameIndex;
 
             if (curIndex > endFrameIndex) {
@@ -343,6 +437,7 @@ var app = {
                 drawSprite(curIndex+1, endFrameIndex);
             }, 1000/4);
         }
+
 
         function draw(frameIndex) {
             /**
@@ -393,6 +488,75 @@ var app = {
         this.preload();
     }
 };
+
+function Title () {
+    var that = this;
+
+    this.width = 330;
+    this.height = 40;
+    this.totalHeight = app.titleSprite.height/2;
+
+    this.timer = null;
+    this.y = 0;
+    this.speed = 100;
+
+    this.index = 0;
+    this.maxIndex = 3;
+
+    this.ctx = document.getElementById('title').getContext('2d');
+    this.img = app.titleSprite;
+    this.state = false;
+
+    this.update = function () {
+
+        go();
+
+        function go () {
+            //  clear timer
+            clearTimeout(that.timer);
+
+            that.clear();
+
+            //  update Index
+            that.index + 1 > that.maxIndex ? that.index = 0 : that.index++;
+
+            //  draw image
+            that.ctx.drawImage(that.img, 0, that.y, that.width*2, that.height*2, 0, 0, that.width, that.height);
+
+            that.speed = that.speed;
+
+            //console.log(that.speed,  that.y);
+
+            //  reset y position
+            if (that.y > that.totalHeight + that.height*2) {
+                that.y = that.y % that.totalHeight - that.height*2 - 120;
+                //console.log(that.totalHeight, that.y);
+            } else {
+                //  update y position
+                that.y += 120;
+            }
+
+            that.timer = setTimeout(function () {
+                go();
+            }, that.speed);
+        }
+    };
+
+    this.stop = function (index) {
+        //  clear timer
+        clearTimeout(that.timer);
+
+        that.clear();
+
+        //  draw image
+        that.ctx.drawImage(that.img, 0, that.height*index*2, that.width*2, that.height*2, 0, 0, that.width, that.height);
+    };
+
+    this.clear = function () {
+        //  clear paper
+        that.ctx.clearRect(0, 0, 330, 40);
+    };
+}
 
 window.onload = function () {
     //  set page response

@@ -6,10 +6,6 @@
 * {
   padding: 0;
   margin: 0;
-  -webkit-backface-visibility: hidden;
-  -webkit-transform: translateZ(0) scale(1, 1);
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-  -webkit-tap-highlight-color: transparent; /* For some Androids */
   outline: none;
 }
 
@@ -22,10 +18,7 @@ body {
   height: 100%;
   overflow: hidden;
   margin: 0  auto;
-  background: url("../images/bg-repeat.jpg")!important;
-  -webkit-backface-visibility: visible;
-  -webkit-transform: none;
-  -webkit-tap-highlight-color: unset;
+  background: url("../images/bg-expand.jpg") center center;
 }
 
 a {
@@ -45,10 +38,58 @@ input {
 }
 
 /* scene */
+.scene-wrap { position: relative; }
+
 #scene {
-  background: url("../images/final_1080_1707_bg.jpg") no-repeat;
+  background: url("../images/bg-main.jpg") no-repeat;
   background-size: 100% 100%;
 }
+
+#title {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  width: 330px;
+  height: 40px;
+  background: rgba(0,0,0,.1);
+}
+
+.share {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  background: url("../images/bg-share.jpg") no-repeat;
+  background-size: cover;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 1.8s 1.2s;
+
+  .btn {
+    overflow: hidden;
+    position: absolute;
+    bottom: 42px/2;
+    width: 315px/2;
+    height: 88px/2;
+    text-indent: -200px;
+  }
+
+  .btn01 { left: 49px/2; }
+  .btn02 { right: 42px/2; }
+
+  .text {
+    position: absolute;
+    left: 0;
+    top: 18%;
+  }
+}
+
+.share.active {
+  opacity: 1;
+  z-index: 100;
+}
+
 
 #scene-touch-area {
   position: fixed;
@@ -79,8 +120,9 @@ input {
 .title {
   position: absolute;
   left: 0;
-  top: 7.1%;
+  top: 7.5%;
   width: 100%;
+  z-index: 110;
 }
 
 /* para */
@@ -100,12 +142,13 @@ input {
   }
 
   .desc {
-    top: 17.1%;
+    top: 17.7%;
   }
 
   .title {
     top: auto;
     bottom: 3.3%;
+    display: none;
   }
 }
 
