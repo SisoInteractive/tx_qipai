@@ -59,7 +59,7 @@ var app = {
             }
 
             //  load scene frames
-            for (var i = 0; i <= imgAmounts; i++) {
+            for (var i = 0; i <= imgAmounts-1; i++) {
                 var img = new Image();
                 img.src = imgPath + 'final_1080_1707_0831_' + app.utils.fixZero(i) + '.jpg';
                 img.index = i;
@@ -635,7 +635,6 @@ function LoadingNumber () {
     this.update = function (number) {
         var singleBit = number % 10;
         var tenBit = parseInt(number/10);
-        console.log(singleBit, tenBit);
 
         if (number < 10) {
             this.single.style.backgroundPositionX = (-this.size * singleBit) + 'px';
