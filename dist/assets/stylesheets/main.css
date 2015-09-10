@@ -35,6 +35,54 @@ input {
 .scene-wrap {
   position: relative;
 }
+.loading {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url("../images/bg-loading.jpg") no-repeat;
+  background-size: cover;
+  z-index: 300;
+  transition: all 2s .6s;
+}
+.loading .numbers {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 357.5px;
+  padding: 0 0 0 10px;
+  text-align: center;
+}
+.loading .number {
+  display: inline-block;
+  font-size: 0;
+  width: 18px;
+  height: 35.5px;
+  vertical-align: middle;
+  background: url("../images/loading-numbers.png") no-repeat;
+  background-size: 215px 35.5px;
+}
+.loading .percent {
+  display: inline-block;
+  font-size: 0;
+  width: 24.5px;
+  height: 32px;
+  vertical-align: middle;
+  background: url("../images/loading-percent.png") no-repeat;
+  background-size: 100% 100%;
+}
+.loading .hundred {
+  display: none;
+  background-position-x: -21.5px;
+}
+.loading .single {
+  background-position-x: -21.5px;
+}
+.loading.complete {
+  transform: scale(10);
+  opacity: 0;
+}
 #scene {
   background: url("../images/bg-main.jpg") no-repeat;
   background-size: 100% 100%;
@@ -57,7 +105,6 @@ input {
   background-size: cover;
   z-index: 5;
   opacity: 0;
-  transition: opacity 1.8s 1.2s;
 }
 .share .btn {
   overflow: hidden;
@@ -81,6 +128,7 @@ input {
 .share.active {
   opacity: 1;
   z-index: 100;
+  transition: opacity 1.8s 1.2s;
 }
 #scene-touch-area {
   position: fixed;

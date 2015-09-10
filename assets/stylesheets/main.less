@@ -40,6 +40,56 @@ input {
 /* scene */
 .scene-wrap { position: relative; }
 
+.loading {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url("../images/bg-loading.jpg") no-repeat;
+  background-size: cover;
+  z-index: 300;
+  transition: all 2s .6s;
+
+  .numbers {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 715px/2;
+    padding: 0 0 0 10px;
+    text-align: center;
+  }
+
+  .number {
+    display: inline-block;
+    font-size: 0;
+    width: 36px/2;
+    height: 71px/2;
+    vertical-align: middle;
+    background: url("../images/loading-numbers.png") no-repeat;
+    background-size: 430px/2 71px/2;
+  }
+
+  .percent {
+    display: inline-block;
+    font-size: 0;
+    width: 49px/2;
+    height: 64px/2;
+    vertical-align: middle;
+    background: url("../images/loading-percent.png") no-repeat;
+    background-size: 100% 100%;
+  }
+
+  .hundred { display: none; background-position-x: -43px/2; }
+
+  .single { background-position-x: -43px/2*1;}
+}
+
+.loading.complete {
+  transform: scale(10);
+  opacity: 0;
+}
+
 #scene {
   background: url("../images/bg-main.jpg") no-repeat;
   background-size: 100% 100%;
@@ -64,7 +114,6 @@ input {
   background-size: cover;
   z-index: 5;
   opacity: 0;
-  transition: opacity 1.8s 1.2s;
 
   .btn {
     overflow: hidden;
@@ -88,6 +137,7 @@ input {
 .share.active {
   opacity: 1;
   z-index: 100;
+  transition: opacity 1.8s 1.2s;
 }
 
 

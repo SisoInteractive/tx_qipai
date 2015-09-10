@@ -7,8 +7,6 @@ var app = {
 
     fixedSprites: [],
 
-    titleSprite: undefined,
-
     paper: {
         canvas: {
             dom: null,
@@ -24,94 +22,112 @@ var app = {
         var Canvas = document.getElementById('scene');
         var ctx = Canvas.getContext('2d');
 
-        //  set images generator
-        var imgPath = "assets/images/";
-        //  img amounts, use the amounts order to general image objects
-        var imgAmounts = 212+1;
-        var loadedAmounts = 0;
-        var isLoaded = false;
-
-        //  load fixed scene frames
-        for (var i = 1; i <= 45; i++) {
-            var img = new Image();
-            img.src = imgPath + 'f_' + that.utils.fixZero(i) + '.png';
-
-            img.index = i;
-
-            img.onload = function () {
-                that.fixedSprites[this.index] = this;
-            }
-        }
-
-        //  load scene frames
-        for (var i = 0; i <= imgAmounts; i++) {
-            var img = new Image();
-            img.src = imgPath + 'final_1080_1707_0831_' + this.utils.fixZero(i) + '.jpg';
-            img.index = i;
-
-            img.onload = function () {
-                loadedAmounts++;
-
-                //  add to sprites
-                that.sprites[this.index] = this;
-
-                checkLoadedAndGoToCreateState();
-            };
-
-            img.onerror = function (error) {
-                imgAmounts -= 1;
-
-                checkLoadedAndGoToCreateState();
-            };
-        }
-
-        //  load title sprite
-        (function () {
-            var img = new Image();
-            img.src = imgPath + 'title-sprite.png';
-
-            img.onload = function () {
-                loadedAmounts++;
-
-                //  add to sprites
-                that.titleSprite = this;
-
-                checkLoadedAndGoToCreateState();
-            };
-
-            img.onerror = function (error) {
-                imgAmounts -= 1;
-
-                checkLoadedAndGoToCreateState();
-            };
-        })();
-
-        function checkLoadedAndGoToCreateState () {
-            /* check img load progress */
-            if (checkIsAllLoaded() && isLoaded == false) {
-                isLoaded = true;
-
-                console.log('images loader end..');
-                setTimeout(function () {
-                    app.create();
-                }, 300);
-            }
-        }
-
-        function checkIsAllLoaded () {
-            var loadedRate = 1;
-            return loadedAmounts / imgAmounts >= loadedRate;
-        }
-
-        //  get widthRatio and heightRatio
-        var bg = new Image();
-        bg.src = 'assets/images/final_1080_1707_bg.jpg';
-
         //  init paper info
         that.paper.ctx = ctx;
         that.paper.canvas.dom = Canvas;
         that.paper.canvas.width = Canvas.width;
         that.paper.canvas.height = Canvas.height;
+
+        //  loadingTable
+        that.loadingTable = new LoadingTable();
+        that.loadingTable.init();
+
+        //  loadingNumber
+        that.loadingNumber = new LoadingNumber();
+
+        loadMain();
+
+        //  load main
+        function loadMain () {
+            //  set images generator
+            var imgPath = "assets/images/";
+            //  img amounts, use the amounts order to general image objects
+            var imgAmounts = 212+1;
+            var loadedAmounts = 0;
+            var isLoaded = false;
+
+            //  load fixed scene frames
+            for (var i = 1; i <= 45; i++) {
+                var img = new Image();
+                img.src = imgPath + 'f_' + that.utils.fixZero(i) + '.png';
+
+                img.index = i;
+
+                img.onload = function () {
+                    that.fixedSprites[this.index] = this;
+                }
+            }
+
+            //  load scene frames
+            for (var i = 0; i <= imgAmounts; i++) {
+                var img = new Image();
+                img.src = imgPath + 'final_1080_1707_0831_' + app.utils.fixZero(i) + '.jpg';
+                img.index = i;
+
+                img.onload = function () {
+                    loadedAmounts++;
+
+                    //  add to sprites
+                    that.sprites[this.index] = this;
+
+                    checkLoadedAndGoToCreateState();
+                };
+
+                img.onerror = function (error) {
+                    imgAmounts -= 1;
+
+                    checkLoadedAndGoToCreateState();
+                };
+            }
+
+            //  load title sprite
+            (function () {
+                var img = new Image();
+                img.src = imgPath + 'title-sprite.png';
+
+                img.onload = function () {
+                    loadedAmounts++;
+
+                    //  add to sprites
+                    that.titleSprite = this;
+
+                    checkLoadedAndGoToCreateState();
+                };
+
+                img.onerror = function (error) {
+                    imgAmounts -= 1;
+
+                    checkLoadedAndGoToCreateState();
+                };
+            })();
+
+            function checkLoadedAndGoToCreateState () {
+                /* check img load progress */
+                if (checkIsAllLoaded() && isLoaded == false) {
+                    isLoaded = true;
+
+                    //  leave the loading
+                    var loadingDom = document.getElementsByClassName('loading')[0];
+                    loadingDom.className = loadingDom.className + ' complete';
+
+                    console.log('images loader end..');
+                    setTimeout(function () {
+                        //  hide the loading
+                        loadingDom.style.display = 'none';
+
+                        app.create();
+                    }, 1600);
+                }
+            }
+
+            function checkIsAllLoaded () {
+                var loadedRate = 1;
+
+                that.loadingNumber.update(Math.floor((loadedAmounts / imgAmounts) * 100));
+
+                return loadedAmounts / imgAmounts >= loadedRate;
+            }
+        }
     },
 
     create: function () {
@@ -489,6 +505,7 @@ var app = {
     }
 };
 
+/** scene title */
 function Title () {
     var that = this;
 
@@ -523,8 +540,6 @@ function Title () {
             //  draw image
             that.ctx.drawImage(that.img, 0, that.y, that.width*2, that.height*2, 0, 0, that.width, that.height);
 
-            that.speed = that.speed;
-
             //console.log(that.speed,  that.y);
 
             //  reset y position
@@ -555,6 +570,85 @@ function Title () {
     this.clear = function () {
         //  clear paper
         that.ctx.clearRect(0, 0, 330, 40);
+    };
+}
+
+/** loadingTable */
+function LoadingTable () {
+    var that = this;
+    this.isAlive = true;
+    this.index = 0;
+    this.end = 14;
+    this.curIndex = 0;
+    this.frameWidth = 462;
+    this.frameHeight = 480;
+    this.width = this.frameWidth/2;
+    this.height = this.frameHeight/2;
+    this.left = 190/2;
+    this.top = 280/2;
+    this.sprite = null;
+
+    this.ctx = document.getElementById('loading').getContext('2d');
+
+    this.update = function () {
+        this.ctx.clearRect(this.left, this.top, this.width, this.height);
+        this.ctx.drawImage(this.sprite, this.frameWidth*this.curIndex, 0, this.frameWidth, this.frameHeight, this.left, this.top, this.width*0.8, this.height*0.8);
+    };
+
+    this.init = function () {
+        var that = this;
+
+        //  create sprite
+        var sprite = new Image();
+        sprite.src = "assets/images/loading-table.png";
+        sprite.onload = function () {
+            that.sprite = this;
+
+            //  update canvas per 200ms
+            var loadingTableTimer = setInterval(function () {
+                if (that.isAlive) {
+                    that.curIndex + 1  > that.end ? that.curIndex = 0 : that.curIndex += 1;
+                    that.update();
+
+                    //// beginPath
+                    //app.paper.ctx.beginPath();
+                    //app.paper.ctx.rect(loadingTable.left, loadingTable.top, loadingTable.width, loadingTable.height);
+                    //app.paper.ctx.stroke();
+                    //app.paper.ctx.closePath();
+                }
+
+                if (that && that.isAlive == false) {
+                    clearInterval(loadingTableTimer);
+                }
+            }, 200);
+        };
+    };
+}
+
+/** loadingNumber */
+function LoadingNumber () {
+    this.size = 22;
+    this.single = document.getElementsByClassName('single')[0];
+    this.ten = document.getElementsByClassName('ten')[0];
+    this.hundred = document.getElementsByClassName('hundred')[0];
+
+    this.update = function (number) {
+        var singleBit = number % 10;
+        var tenBit = parseInt(number/10);
+        console.log(singleBit, tenBit);
+
+        if (number < 10) {
+            this.single.style.backgroundPositionX = (-this.size * singleBit) + 'px';
+            this.ten.style.backgroundPositionX = '0px';
+        } else if (number == 100) {
+            this.single.style.backgroundPositionX = '0px';
+            this.ten.style.backgroundPositionX = '0px';
+            this.hundred.style.backgroundPositionX = -this.size + 'px';
+            this.hundred.style.display = 'inline-block';
+        } else {
+            this.single.style.backgroundPositionX = (-this.size * singleBit) + 'px';
+            this.ten.style.backgroundPositionX = (-this.size * tenBit) + 'px';
+        }
     };
 }
 
