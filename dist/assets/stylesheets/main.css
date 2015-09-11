@@ -35,6 +35,12 @@ input {
 .scene-wrap {
   position: relative;
 }
+.scene-wrap .title {
+  opacity: 0;
+}
+.scene-wrap.active .title {
+  opacity: 1;
+}
 /* loading */
 .loading {
   position: fixed;
@@ -165,6 +171,7 @@ input {
   background-size: cover;
   z-index: 5;
   opacity: 0;
+  transition: opacity 1.8s;
 }
 .share .btn {
   overflow: hidden;
@@ -188,7 +195,6 @@ input {
 .share.active {
   opacity: 1;
   z-index: 100;
-  transition: opacity 1.8s 1.2s;
 }
 @-webkit-keyframes flash {
   0% {

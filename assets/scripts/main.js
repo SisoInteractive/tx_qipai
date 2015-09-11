@@ -43,6 +43,10 @@ var app = {
 
         //  load main
         function loadMain () {
+            //  show main title
+            var wrapDom = document.getElementsByClassName('scene-wrap')[0];
+            wrapDom.className = wrapDom.className + ' active';
+
             //  set images generator
             var imgPath = "assets/images/";
             //  img amounts, use the amounts order to general image objects
@@ -203,13 +207,13 @@ var app = {
             //  disable table move
             that.table.isPlaying = true;
 
+            //  play the first scene
             setTimeout(function () {
-                //  play the first scene
                 that.table.direct = "forward";
                 that.table.curIndex = 0;
                 that.table.playFrames(that.table.sceneSpriteGroup[0][0], that.table.sceneSpriteGroup[0][1]);
                 that.table.showPara(0);
-            }, 1200);
+            }, 800);
         };
 
         //  play BGM immediately
@@ -429,10 +433,11 @@ function Table () {
                 //  show share layout
                 if (shareLayout.className.indexOf('active') < 0) {
                     shareLayout.className = shareLayout.className + ' active';
+
+                    setTimeout(function () {
+                        that.update(1);
+                    }, 1900);
                 }
-            } else {
-                //  hide share layout
-                shareLayout.className = shareLayout.className.replace(' active', '');
             }
         }, 600);
     };
