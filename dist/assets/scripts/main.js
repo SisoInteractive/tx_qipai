@@ -154,6 +154,17 @@ var app = {
         //  show first scene para
         that.table.showPara(that.table.curIndex);
 
+        //  show tips arrow
+        var tipsDom = document.getElementsByClassName('tips-arrow')[0];
+        setTimeout(function () {
+            tipsDom.className = tipsDom.className + ' active';
+
+            setTimeout(function () {
+                tipsDom.className = tipsDom.className.replace(' active', '');
+                tipsDom.style.display = 'none';
+            }, 4800);
+        }, 1050);
+
 
         //  bind share layout buttons
         var againButton = document.getElementsByClassName('btn01')[0];
@@ -171,8 +182,8 @@ var app = {
                 //  play the first scene
                 that.table.direct = "forward";
                 that.table.curIndex = 0;
-
                 that.table.playFrames(that.table.sceneSpriteGroup[0][0], that.table.sceneSpriteGroup[0][1]);
+                that.table.showPara(0);
             }, 1200);
         };
 
