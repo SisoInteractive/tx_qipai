@@ -585,7 +585,6 @@ function Title () {
     this.img = app.titleSprite;
 
     this.update = function () {
-
         go();
 
         function go () {
@@ -604,11 +603,11 @@ function Title () {
 
             //  reset y position
             if (that.y > that.totalHeight + that.height*2) {
-                that.y = that.y % that.totalHeight - that.height*2 - 120;
+                that.y = that.y % that.totalHeight - that.height*2;
                 //console.log(that.totalHeight, that.y);
             } else {
                 //  update y position
-                that.y += 120;
+                that.y += that.height;
             }
 
             that.timer = setTimeout(function () {
