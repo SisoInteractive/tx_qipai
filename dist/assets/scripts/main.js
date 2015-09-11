@@ -7,6 +7,10 @@ var app = {
 
     fixedSprites: [],
 
+    titleSprite: undefined,
+
+    titleActiveSprite: undefined,
+
     paper: {
         canvas: {
             dom: null,
@@ -42,7 +46,10 @@ var app = {
             //  set images generator
             var imgPath = "assets/images/";
             //  img amounts, use the amounts order to general image objects
-            var imgAmounts = 212+1;
+            //  212 main frames, 2 title sprites
+            var mainFramesAmount = 212;
+            var anotherFramesAmount = 2;
+            var imgAmounts = mainFramesAmount+anotherFramesAmount;
             var loadedAmounts = 0;
             var isLoaded = false;
 
@@ -59,7 +66,7 @@ var app = {
             }
 
             //  load scene frames
-            for (var i = 0; i <= imgAmounts-1; i++) {
+            for (var i = 0; i <= mainFramesAmount; i++) {
                 var img = new Image();
                 img.src = imgPath + 'final_1080_1707_0831_' + app.utils.fixZero(i) + '.jpg';
                 img.index = i;
@@ -95,6 +102,24 @@ var app = {
                 };
 
                 img.onerror = function (error) {
+                    imgAmounts -= 1;
+
+                    checkLoadedAndGoToCreateState();
+                };
+
+                var img2 = new Image();
+                img2.src = imgPath + 'title-sprite-a.png';
+
+                img2.onload = function () {
+                    loadedAmounts++;
+
+                    //  add to sprites
+                    that.titleActiveSprite = this;
+
+                    checkLoadedAndGoToCreateState();
+                };
+
+                img2.onerror = function (error) {
                     imgAmounts -= 1;
 
                     checkLoadedAndGoToCreateState();
@@ -556,8 +581,8 @@ function Title () {
     this.maxIndex = 3;
 
     this.ctx = document.getElementById('title').getContext('2d');
+    this.imgActive = app.titleActiveSprite;
     this.img = app.titleSprite;
-    this.state = false;
 
     this.update = function () {
 
@@ -573,7 +598,7 @@ function Title () {
             that.index + 1 > that.maxIndex ? that.index = 0 : that.index++;
 
             //  update image
-            that.ctx.drawImage(that.img, 0, that.y, that.width*2, that.height*2, 0, 0, that.width, that.height);
+            that.ctx.drawImage(that.imgActive, 0, that.y, that.width*2, that.height*2, 0, 0, that.width, that.height);
 
             //console.log(that.speed,  that.y);
 
