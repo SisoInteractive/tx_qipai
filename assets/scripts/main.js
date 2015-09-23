@@ -176,23 +176,22 @@ var app = {
         //  update title
         that.title.update();
 
+        //  show canvas
+        document.getElementsByClassName('scene-container')[0].className += ' active';
 
         //  play first scene
-        that.table.playFrames(that.table.sceneSpriteGroup[that.table.curIndex][0], that.table.sceneSpriteGroup[that.table.curIndex][1]);
-
-        //  show first scene para
-        that.table.showPara(that.table.curIndex);
+        that.table.playFrames(that.table.sceneSpriteGroup[that.table.curIndex][0], that.table.sceneSpriteGroup[that.table.curIndex][0]);
 
         //  show tips arrow
-        var tipsDom = document.getElementsByClassName('tips-arrow')[0];
         setTimeout(function () {
+            var tipsDom = document.getElementsByClassName('tips-arrow')[0];
             tipsDom.className = tipsDom.className + ' active';
 
             setTimeout(function () {
                 tipsDom.className = tipsDom.className.replace(' active', '');
                 tipsDom.style.display = 'none';
             }, 4800);
-        }, 1050);
+        }, 1000);
 
 
         //  bind share layout buttons

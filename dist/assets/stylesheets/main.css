@@ -90,9 +90,16 @@ input {
   transform: scale(10);
   opacity: 0;
 }
-#scene {
+.scene-container {
   background: url("../images/bg-main.jpg") no-repeat;
   background-size: 100% 100%;
+}
+.scene-container #scene {
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+.scene-container.active #scene {
+  opacity: 1;
 }
 /* animate scene title */
 #title {
@@ -124,7 +131,7 @@ input {
   vertical-align: top;
 }
 .tips-arrow.active {
-  -webkit-animation: flash 1.2s 1.2s 3;
+  -webkit-animation: flash 1.2s .3s 3;
 }
 /* main title */
 .title {

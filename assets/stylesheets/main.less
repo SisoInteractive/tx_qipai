@@ -99,9 +99,20 @@ input {
   opacity: 0;
 }
 
-#scene {
+.scene-container {
   background: url("../images/bg-main.jpg") no-repeat;
   background-size: 100% 100%;
+
+  #scene {
+    opacity: 0;
+    transition: opacity 1.2s;
+  }
+}
+
+.scene-container.active {
+  #scene {
+    opacity: 1;
+  }
 }
 
 /* animate scene title */
@@ -139,7 +150,7 @@ input {
 }
 
 .tips-arrow.active {
-  -webkit-animation: flash 1.2s 1.2s 3;
+  -webkit-animation: flash 1.2s .3s 3;
 }
 
 /* main title */
