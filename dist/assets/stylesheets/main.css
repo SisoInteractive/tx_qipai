@@ -87,7 +87,6 @@ input {
   background-position-x: -21.5px;
 }
 .loading.complete {
-  transform: scale(10);
   opacity: 0;
 }
 .scene-container {
@@ -126,6 +125,7 @@ input {
   text-align: center;
   z-index: 8;
   opacity: 0;
+  transform: scale(0.4);
 }
 .tips-arrow img {
   vertical-align: top;
@@ -175,10 +175,10 @@ input {
   left: 0;
   position: absolute;
   background: url("../images/bg-share.jpg") no-repeat;
-  background-size: cover;
+  background-size: 100% 100%;
   z-index: 5;
   opacity: 0;
-  transition: opacity 1.8s;
+  transition: opacity 1s;
 }
 .share .btn {
   overflow: hidden;
@@ -197,11 +197,23 @@ input {
 .share .text {
   position: absolute;
   left: 0;
-  top: 18%;
+  top: 28.2%;
+}
+.share .duff {
+  position: absolute;
+  left: 0;
+  top: 16.5%;
+  opacity: 0;
+  transform: scale(0);
+  transition: all .6s ease;
 }
 .share.active {
   opacity: 1;
   z-index: 100;
+}
+.share.active .duff {
+  opacity: 1;
+  transform: scale(1);
 }
 @-webkit-keyframes flash {
   0% {

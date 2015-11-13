@@ -34,12 +34,43 @@ var app = {
 
         //  loadingTable
         that.loadingTable = new LoadingTable();
-        that.loadingTable.initEventHandler();
 
         //  loadingNumber
         that.loadingNumber = new LoadingNumber();
 
-        loadMain();
+        (function loadLoading () {
+            //  create sprite
+            var sprite01 = new Image();
+            sprite01.src = "assets/images/loading-table01.png";
+            sprite01.onload = function () {
+                that.loadingTable.sprite[0] = this;
+
+                checkProcess();
+            };
+
+            var sprite02 = new Image();
+            sprite02.src = "assets/images/loading-table02.png";
+            sprite02.onload = function () {
+                that.loadingTable.sprite[1] = this;
+
+                checkProcess();
+            };
+
+            var sprite03 = new Image();
+            sprite03.src = "assets/images/loading-table03.png";
+            sprite03.onload = function () {
+                that.loadingTable.sprite[2] = this;
+
+                checkProcess();
+            };
+
+            function checkProcess () {
+                if (that.loadingTable.sprite.length == 3) {
+                    loadMain();
+                }
+            }
+        })();
+
 
         //  load main
         function loadMain () {
@@ -152,6 +183,7 @@ var app = {
             function checkIsAllLoaded () {
                 var loadedRate = 1;
 
+                that.loadingTable.update(loadedAmounts / imgAmounts);
                 that.loadingNumber.update(Math.floor((loadedAmounts / imgAmounts) * 100));
 
                 return loadedAmounts / imgAmounts >= loadedRate;
@@ -221,8 +253,54 @@ var app = {
             document.getElementById('audio').play();
 
             document.removeEventListener('touchstart', initSound, false);
+
+            //  preload music
+            document.getElementById('audio1').play();
+            document.getElementById('audio2').play();
+            document.getElementById('audio3').play();
+            document.getElementById('audio4').play();
+            document.getElementById('audio5').play();
+            setTimeout(function () {
+                app.pauseAllAudio();
+            }, 0);
         };
         document.addEventListener('touchstart', initSound, false);
+    },
+
+    playEffectAudio: function (index) {
+        switch (index) {
+            case 0:
+                document.getElementById('audio1').play();
+                break;
+            case 1:
+                document.getElementById('audio2').play();
+                break;
+
+            case 2:
+                document.getElementById('audio3').play();
+                break;
+
+            case 3:
+                document.getElementById('audio4').play();
+                break;
+
+            case 4:
+                document.getElementById('audio5').play();
+                break;
+        }
+    },
+
+    pauseAllAudio: function () {
+        document.getElementById('audio1').pause();
+        document.getElementById('audio1').currentTime = 0;
+        document.getElementById('audio2').pause();
+        document.getElementById('audio2').currentTime = 0;
+        document.getElementById('audio3').pause();
+        document.getElementById('audio3').currentTime = 0;
+        document.getElementById('audio4').pause();
+        document.getElementById('audio4').currentTime = 0;
+        document.getElementById('audio5').pause();
+        document.getElementById('audio5').currentTime = 0;
     },
 
     utils: {
@@ -306,7 +384,13 @@ function Table () {
             that.playFrames(that.curFrameIndex, that.sceneSpriteGroup[that.curIndex][1]);
 
             that.showPara(that.curIndex);
+
+            // audio
+            app.pauseAllAudio();
+            app.playEffectAudio(that.curIndex);
         }
+
+
     };
 
     /** this method is used as event handler,
@@ -641,50 +725,36 @@ function LoadingTable () {
     var that = this;
     this.isAlive = true;
     this.index = 0;
-    this.end = 14;
+    this.end = 122;
     this.curIndex = 0;
-    this.frameWidth = 462;
-    this.frameHeight = 480;
+    this.frameWidth = 750;
+    this.frameHeight = 376;
     this.width = this.frameWidth/2;
     this.height = this.frameHeight/2;
-    this.left = 190/2;
-    this.top = 280/2;
-    this.sprite = null;
+    this.left = 0;
+    this.top = 190;
+    this.sprite = [];
 
     this.ctx = document.getElementById('loading').getContext('2d');
 
-    this.update = function () {
-        this.ctx.clearRect(this.left, this.top, this.width, this.height);
-        this.ctx.drawImage(this.sprite, this.frameWidth*this.curIndex, 0, this.frameWidth, this.frameHeight, this.left, this.top, this.width*0.8, this.height*0.8);
-    };
+    this.update = function (rate) {
+        if (this.sprite.length == 3) {
+            var index = Math.floor(this.end*rate);
+            var spriteIndex = 0;
 
-    this.initEventHandler = function () {
-        var that = this;
+            if (index < 40) {
+                spriteIndex = 0;
+            } else if (index < 80) {
+                spriteIndex = 1;
+                index -= 40;
+            } else {
+                spriteIndex = 2;
+                index -= 80;
+            }
 
-        //  create sprite
-        var sprite = new Image();
-        sprite.src = "assets/images/loading-table.png";
-        sprite.onload = function () {
-            that.sprite = this;
-
-            //  update canvas per 200ms
-            var loadingTableTimer = setInterval(function () {
-                if (that.isAlive) {
-                    that.curIndex + 1  > that.end ? that.curIndex = 0 : that.curIndex += 1;
-                    that.update();
-
-                    //// beginPath
-                    //app.paper.ctx.beginPath();
-                    //app.paper.ctx.rect(loadingTable.left, loadingTable.top, loadingTable.width, loadingTable.height);
-                    //app.paper.ctx.stroke();
-                    //app.paper.ctx.closePath();
-                }
-
-                if (that && that.isAlive == false) {
-                    clearInterval(loadingTableTimer);
-                }
-            }, 200);
-        };
+            this.ctx.clearRect(this.left, this.top, this.width, this.height);
+            this.ctx.drawImage(this.sprite[spriteIndex], this.frameWidth*index, 0, this.frameWidth, this.frameHeight, this.left+(this.width*0.1), this.top, this.width*0.8, this.height*0.8);
+        }
     };
 }
 

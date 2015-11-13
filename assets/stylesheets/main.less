@@ -95,7 +95,6 @@ input {
 }
 
 .loading.complete {
-  transform: scale(10);
   opacity: 0;
 }
 
@@ -142,6 +141,7 @@ input {
   text-align: center;
   z-index: 8;
   opacity: 0;
+  transform: scale(.4);
 
   img {
     vertical-align: top;
@@ -201,10 +201,10 @@ input {
   left: 0;
   position: absolute;
   background: url("../images/bg-share.jpg") no-repeat;
-  background-size: cover;
+  background-size: 100% 100%;
   z-index: 5;
   opacity: 0;
-  transition: opacity 1.8s;
+  transition: opacity 1s;
 
   .btn {
     overflow: hidden;
@@ -221,13 +221,27 @@ input {
   .text {
     position: absolute;
     left: 0;
-    top: 18%;
+    top: 28.2%;
+  }
+
+  .duff {
+    position: absolute;
+    left: 0;
+    top: 16.5%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all .6s ease;
   }
 }
 
 .share.active {
   opacity: 1;
   z-index: 100;
+
+  .duff {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @-webkit-keyframes flash {
