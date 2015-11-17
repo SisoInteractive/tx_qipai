@@ -101,12 +101,15 @@ input {
   opacity: 1;
 }
 /* animate scene title */
-#title {
+.title-wrap {
   position: absolute;
   left: 22px;
-  bottom: 16px;
+  top: 38.5px;
   width: 330px;
-  height: 40px;
+  height: 41px;
+  padding: 2px;
+  background: url("../images/bg-title.png") no-repeat;
+  background-size: 100% 100%;
 }
 #scene-touch-area {
   position: fixed;
@@ -137,9 +140,9 @@ input {
 .title {
   position: absolute;
   left: 0;
-  top: 7.5%;
+  top: 535px;
   width: 100%;
-  z-index: 110;
+  z-index: 90;
 }
 /* scene para */
 .para {

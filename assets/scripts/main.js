@@ -238,12 +238,16 @@ var app = {
             //  disable table move
             that.table.isPlaying = true;
 
+
             //  play the first scene
             setTimeout(function () {
                 that.table.direct = "forward";
                 that.table.curIndex = 0;
                 that.table.playFrames(that.table.sceneSpriteGroup[0][0], that.table.sceneSpriteGroup[0][1]);
                 that.table.showPara(0);
+
+                //  play effect audio
+                that.playEffectAudio(0);
             }, 800);
         };
 
@@ -268,6 +272,10 @@ var app = {
     },
 
     playEffectAudio: function (index) {
+        var that = this;
+
+        that.pauseAllAudio();
+
         switch (index) {
             case 0:
                 document.getElementById('audio1').play();
@@ -386,7 +394,6 @@ function Table () {
             that.showPara(that.curIndex);
 
             // audio
-            app.pauseAllAudio();
             app.playEffectAudio(that.curIndex);
         }
 
@@ -586,7 +593,7 @@ function Table () {
         //  recursive to update sprites
         function drawSprite(curFrameIndex, endFrameIndex) {
             //  stop update fixed frames
-            if (that.canPlayFixedFrames == false ) { return;}
+            if (that.canPlayFixedFrames == false ) { return; }
 
             var curIndex = curFrameIndex;
 
