@@ -103,7 +103,7 @@ var app = {
             //  load scene frames
             for (var i = 0; i <= mainFramesAmount; i++) {
                 var img = new Image();
-                img.src = imgPath + 'final_1080_1707_0831_' + app.utils.fixZero(i) + '.jpg';
+                img.src = imgPath + 'final_1080_1118_' + app.utils.fixZero(i) + '.jpg';
                 img.index = i;
 
                 img.onload = function () {
@@ -621,7 +621,7 @@ function Table () {
 
             if (img) {
                 //  update image
-                ctx.drawImage(img, 0, that.canvas.height*0.331, that.canvas.width, that.canvas.height*0.546);
+                ctx.drawImage(img, 0, that.canvas.height*0.349, that.canvas.width, that.canvas.height*0.546);
             } else {
 
             }
@@ -644,7 +644,7 @@ function Table () {
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
             //  update image
-            ctx.drawImage(img, 0, this.canvas.height*0.331, this.canvas.width, this.canvas.height*0.546);
+            ctx.drawImage(img, 0, this.canvas.height*0.349, this.canvas.width, this.canvas.height*0.546);
         } else {
 
         }
